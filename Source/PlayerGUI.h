@@ -3,10 +3,10 @@
 #include "PlayerAudio.h"
 
 class PlayerGUI : public juce::Component,
-				  public juce::Button::Listener,
-				  public juce::Slider::Listener
+	public juce::Button::Listener,
+	public juce::Slider::Listener
 {
-	public:
+public:
 	PlayerGUI();
 	~PlayerGUI() override;
 
@@ -15,7 +15,7 @@ class PlayerGUI : public juce::Component,
 	void prepareToPlay(int samplesPerBlockExpected, double sampleRate);
 	void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill);
 	void releaseResources();
-	
+
 private:
 	PlayerAudio playerAudio;
 
