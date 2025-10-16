@@ -16,7 +16,7 @@ PlayerGUI::PlayerGUI()
 	addAndMakeVisible(volumeSlider);
 }
 
-PlayerGUI::~PlayerGUI(){}
+PlayerGUI::~PlayerGUI() {}
 
 void PlayerGUI::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 {
@@ -26,11 +26,6 @@ void PlayerGUI::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 void PlayerGUI::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
 	playerAudio.getNextAudioBlock(bufferToFill);
-	if(playerAudio.getPosition() >= playerAudio.getLength() && loopButton.getToggleState())
-	{
-		playerAudio.setPosition(0.0);
-		playerAudio.play();
-	}
 }
 
 void PlayerGUI::releaseResources()
@@ -84,19 +79,20 @@ void PlayerGUI::buttonClicked(juce::Button* button)
 			playPauseButton.setToggleState(isPlaying, juce::dontSendNotification);
 		}
 	}
-	else if(button == &goToStartButton)
+	else if (button == &goToStartButton)
 	{
 		playerAudio.goToStart();
 	}
-	else if(button == &goToEndButton)
+	else if (button == &goToEndButton)
 	{
 		playerAudio.goToEnd();
 	}
-	else if(button == &loopButton)
+	else if (button == &loopButton)
 	{
-		bool isLooping = !loopButton.getToggleState();
-		loopButton.setToggleState(isLooping,juce::dontSendNotification);
-		loopButton.setButtonText(isLooping ? "Loop: On" : "Loop: Off");
+		bool loop = !loopButton.getToggleState();
+		loopButton.setToggleState(loop, juce::dontSendNotification);
+		loopButton.setButtonText(loop ? "Loop: On" : "Loop: Off");
+		playerAudio.setLooping(loop);
 	}
 }
 
