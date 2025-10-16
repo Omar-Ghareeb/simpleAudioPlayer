@@ -4,7 +4,7 @@
 PlayerGUI::PlayerGUI()
 {
 	// Add buttons
-	for (auto* btn : { &loadButton, &playButton, &stopButton, &loopButton })
+	for (auto* btn : { &loadButton, &playPauseButton, &goToStartButton ,&goToEndButton, &loopButton })
 	{
 		btn->addListener(this);
 		addAndMakeVisible(btn);
@@ -42,9 +42,10 @@ void PlayerGUI::resized()
 {
 	int y = 20;
 	loadButton.setBounds(20, y, 100, 40);
-	playButton.setBounds(140, y, 80, 40);
-	stopButton.setBounds(240, y, 80, 40);
-	loopButton.setBounds(340, y, 100, 40);
+	playPauseButton.setBounds(140, y, 80, 40);
+	goToStartButton.setBounds(240, y, 80, 40);
+	goToEndButton.setBounds(340, y, 80, 40);
+	loopButton.setBounds(440, y, 100, 40);
 	volumeSlider.setBounds(20, 100, getWidth() - 40, 30);
 }
 
@@ -67,13 +68,27 @@ void PlayerGUI::buttonClicked(juce::Button* button)
 				}
 			});
 	}
-	else if (button == &playButton)
+	else if (button == &playPauseButton)
 	{
-		playerAudio.play();
+		bool isPlaying = playPauseButton.getToggleState();
+		if (isPlaying)
+		{
+			playerAudio.play();
+			playPauseButton.setButtonText("Pause");
+		}
+		else
+		{
+			playerAudio.pause();
+			playPauseButton.setButtonText("Play");
+		}
 	}
-	else if (button == &stopButton)
+	else if(button == &goToStartButton)
 	{
-		playerAudio.stop();
+		playerAudio.goToStart();
+	}
+	else if(button == &goToEndButton)
+	{
+		playerAudio.goToEnd();
 	}
 	else if(button == &loopButton)
 	{

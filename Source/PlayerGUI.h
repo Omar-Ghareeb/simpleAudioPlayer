@@ -21,8 +21,9 @@ private:
 
 	// GUI elements
 	juce::TextButton loadButton{ "Load Files" };
-	juce::TextButton playButton{ "Play" };
-	juce::TextButton stopButton{ "Stop" };
+	juce::TextButton playPauseButton{ "Play" };
+	juce::TextButton goToStartButton{ "Go to start" };
+	juce::TextButton goToEndButton{ "Go to end" };
 	juce::TextButton loopButton{ "Loop: Off" };
 	juce::Slider volumeSlider;
 

@@ -41,10 +41,19 @@ void PlayerAudio::play()
     transportSource.start();
 }
 
-void PlayerAudio::stop()
+void PlayerAudio::pause()
 {
     transportSource.stop();
+}
+
+void PlayerAudio::goToStart()
+{
 	transportSource.setPosition(0.0);
+}
+
+void PlayerAudio::goToEnd()
+{
+	transportSource.setPosition(transportSource.getLengthInSeconds());
 }
 
 void PlayerAudio::setGain(float gain)

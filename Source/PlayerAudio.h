@@ -12,7 +12,9 @@ public:
 
 	bool loadFile(const juce::File& file);
 	void play();
-	void stop();
+	void pause();
+	void goToStart();
+	void goToEnd();
 	void setGain(float gain);
 	void setPosition(double pos);
 	double getPosition() const;
