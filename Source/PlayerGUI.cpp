@@ -70,16 +70,18 @@ void PlayerGUI::buttonClicked(juce::Button* button)
 	}
 	else if (button == &playPauseButton)
 	{
-		bool isPlaying = playPauseButton.getToggleState();
+		bool isPlaying = !playPauseButton.getToggleState();
 		if (isPlaying)
 		{
 			playerAudio.play();
 			playPauseButton.setButtonText("Pause");
+			playPauseButton.setToggleState(isPlaying, juce::dontSendNotification);
 		}
 		else
 		{
 			playerAudio.pause();
 			playPauseButton.setButtonText("Play");
+			playPauseButton.setToggleState(isPlaying, juce::dontSendNotification);
 		}
 	}
 	else if(button == &goToStartButton)
