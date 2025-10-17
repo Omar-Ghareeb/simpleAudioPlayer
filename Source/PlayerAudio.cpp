@@ -90,3 +90,14 @@ void PlayerAudio::setLooping(bool loop)
 {
     isLooping = loop;
 }
+void PlayerAudio::mute() {
+    if (!AmIMuted) {
+        PastVolume = transportSource.getGain();
+        setGain(0.0);
+        AmIMuted = true;
+    }
+    else {
+        setGain(PastVolume);
+        AmIMuted = false;
+    }
+}

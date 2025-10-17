@@ -20,6 +20,7 @@ public:
 	double getPosition() const;
 	double getLength() const;
 	void setLooping(bool loop);
+	void mute();
 	bool isLoopingEnabled() const;
 
 private:
@@ -28,6 +29,8 @@ private:
 	juce::AudioTransportSource transportSource;
 
 	bool isLooping = false;
+	bool AmIMuted = false;
+	float PastVolume = 0.0;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PlayerAudio)
 };
