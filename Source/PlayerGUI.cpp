@@ -4,11 +4,20 @@
 PlayerGUI::PlayerGUI()
 {
 	// Add buttons
-	for (auto* btn : { &loadButton, &playPauseButton, &goToStartButton ,&goToEndButton, &loopButton })
+	for (auto* btn : { &loadButton, &playPauseButton, &goToStartButton ,&goToEndButton, &loopButton, &muteButton })
 	{
 		btn->addListener(this);
 		addAndMakeVisible(btn);
 	}
+
+	// Text labels
+	title.setColour(juce::Label::textColourId, juce::Colours::black);
+	artist.setColour(juce::Label::textColourId, juce::Colours::black);
+	duration.setColour(juce::Label::textColourId, juce::Colours::black);
+	addAndMakeVisible(title);
+	addAndMakeVisible(artist);
+	addAndMakeVisible(duration);
+
 	// Volume slider
 	volumeSlider.setRange(0.0, 1.0, 0.01);
 	volumeSlider.setValue(0.5);
@@ -16,7 +25,7 @@ PlayerGUI::PlayerGUI()
 	addAndMakeVisible(volumeSlider);
 }
 
-PlayerGUI::~PlayerGUI(){}
+PlayerGUI::~PlayerGUI() {}
 
 void PlayerGUI::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 {
@@ -26,11 +35,6 @@ void PlayerGUI::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 void PlayerGUI::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
 	playerAudio.getNextAudioBlock(bufferToFill);
-	if(playerAudio.getPosition() >= playerAudio.getLength() && loopButton.getToggleState())
-	{
-		playerAudio.setPosition(0.0);
-		playerAudio.play();
-	}
 }
 
 void PlayerGUI::releaseResources()
@@ -46,7 +50,11 @@ void PlayerGUI::resized()
 	goToStartButton.setBounds(240, y, 80, 40);
 	goToEndButton.setBounds(340, y, 80, 40);
 	loopButton.setBounds(440, y, 100, 40);
-	volumeSlider.setBounds(20, 100, getWidth() - 40, 30);
+	muteButton.setBounds(560, y, 80, 40);
+	title.setBounds(20, 80, 200, 30);
+	artist.setBounds(240, 80, 200, 30);
+	duration.setBounds(410, 80, 200, 30);
+	volumeSlider.setBounds(20, 130, getWidth() - 40, 30);
 }
 
 void PlayerGUI::buttonClicked(juce::Button* button)
@@ -65,36 +73,50 @@ void PlayerGUI::buttonClicked(juce::Button* button)
 				if (files.size() > 0 && files[0].existsAsFile())
 				{
 					playerAudio.loadFile(files[0]);
+
+					auto metadata = playerAudio.metaData(fileChooser->getResult());
+					title.setText("Titel: " + playerAudio.metaData(fileChooser->getResult())[0], juce::dontSendNotification);
+					artist.setText("Artist: " + playerAudio.metaData(fileChooser->getResult())[1], juce::dontSendNotification);
+					duration.setText("Duration: " + playerAudio.metaData(fileChooser->getResult())[2], juce::dontSendNotification);
 				}
 			});
 	}
 	else if (button == &playPauseButton)
 	{
-		bool isPlaying = playPauseButton.getToggleState();
+		bool isPlaying = !playPauseButton.getToggleState();
 		if (isPlaying)
 		{
 			playerAudio.play();
 			playPauseButton.setButtonText("Pause");
+			playPauseButton.setToggleState(isPlaying, juce::dontSendNotification);
 		}
 		else
 		{
 			playerAudio.pause();
 			playPauseButton.setButtonText("Play");
+			playPauseButton.setToggleState(isPlaying, juce::dontSendNotification);
 		}
 	}
-	else if(button == &goToStartButton)
+	else if (button == &goToStartButton)
 	{
 		playerAudio.goToStart();
 	}
-	else if(button == &goToEndButton)
+	else if (button == &goToEndButton)
 	{
 		playerAudio.goToEnd();
 	}
-	else if(button == &loopButton)
+	else if (button == &loopButton)
 	{
-		bool isLooping = !loopButton.getToggleState();
-		loopButton.setToggleState(isLooping,juce::dontSendNotification);
-		loopButton.setButtonText(isLooping ? "Loop: On" : "Loop: Off");
+		bool loop = !loopButton.getToggleState();
+		loopButton.setToggleState(loop, juce::dontSendNotification);
+		loopButton.setButtonText(loop ? "Loop: On" : "Loop: Off");
+		playerAudio.setLooping(loop);
+	}
+	else if (button == &muteButton) {
+		bool muted = !muteButton.getToggleState();
+		muteButton.setToggleState(muted, juce::dontSendNotification);
+		playerAudio.mute();
+		muteButton.setButtonText(muted ? "Muted" : "Mute");
 	}
 }
 
