@@ -9,6 +9,15 @@ PlayerGUI::PlayerGUI()
 		btn->addListener(this);
 		addAndMakeVisible(btn);
 	}
+
+	// Text labels
+	title.setColour(juce::Label::textColourId, juce::Colours::black);
+	artist.setColour(juce::Label::textColourId, juce::Colours::black);
+	duration.setColour(juce::Label::textColourId, juce::Colours::black);
+	addAndMakeVisible(title);
+	addAndMakeVisible(artist);
+	addAndMakeVisible(duration);
+
 	// Volume slider
 	volumeSlider.setRange(0.0, 1.0, 0.01);
 	volumeSlider.setValue(0.5);
@@ -42,7 +51,10 @@ void PlayerGUI::resized()
 	goToEndButton.setBounds(340, y, 80, 40);
 	loopButton.setBounds(440, y, 100, 40);
 	muteButton.setBounds(560, y, 80, 40);
-	volumeSlider.setBounds(20, 100, getWidth() - 40, 30);
+	title.setBounds(20, 80, 200, 30);
+	artist.setBounds(240, 80, 200, 30);
+	duration.setBounds(410, 80, 200, 30);
+	volumeSlider.setBounds(20, 130, getWidth() - 40, 30);
 }
 
 void PlayerGUI::buttonClicked(juce::Button* button)
@@ -61,6 +73,11 @@ void PlayerGUI::buttonClicked(juce::Button* button)
 				if (files.size() > 0 && files[0].existsAsFile())
 				{
 					playerAudio.loadFile(files[0]);
+
+					auto metadata = playerAudio.metaData(fileChooser->getResult());
+					title.setText("Titel: " + playerAudio.metaData(fileChooser->getResult())[0], juce::dontSendNotification);
+					artist.setText("Artist: " + playerAudio.metaData(fileChooser->getResult())[1], juce::dontSendNotification);
+					duration.setText("Duration: " + playerAudio.metaData(fileChooser->getResult())[2], juce::dontSendNotification);
 				}
 			});
 	}
@@ -96,10 +113,10 @@ void PlayerGUI::buttonClicked(juce::Button* button)
 		playerAudio.setLooping(loop);
 	}
 	else if (button == &muteButton) {
-			bool muted = !muteButton.getToggleState();
-			muteButton.setToggleState(muted, juce::dontSendNotification);
-			playerAudio.mute();
-			muteButton.setButtonText(muted ? "Muted" : "Mute");
+		bool muted = !muteButton.getToggleState();
+		muteButton.setToggleState(muted, juce::dontSendNotification);
+		playerAudio.mute();
+		muteButton.setButtonText(muted ? "Muted" : "Mute");
 	}
 }
 

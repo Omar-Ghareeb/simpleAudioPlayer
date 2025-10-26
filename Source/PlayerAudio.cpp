@@ -101,3 +101,23 @@ void PlayerAudio::mute() {
         AmIMuted = false;
     }
 }
+std::vector<std::string> PlayerAudio::metaData(const juce::File& file)
+{
+    std::unique_ptr<juce::AudioFormatReader> reader(formatManager.createReaderFor(file));
+    std::vector<std::string> metadata;
+    if (reader != nullptr) {
+
+        juce::String title = reader->metadataValues.getValue("title", "");
+        if (title.isEmpty())
+            title = file.getFileNameWithoutExtension();
+        juce::String artist = reader->metadataValues.getValue("artist", "Unknown Artist");
+        double durationInSeconds = (reader->lengthInSamples / reader->sampleRate);
+        int durationInMinutes = (durationInSeconds) / 60;
+        juce::String duration = juce::String((float)durationInMinutes) + ':' + juce::String(((int)durationInSeconds % 60)) + " minutes";
+        metadata.push_back(title.toStdString());
+        metadata.push_back(artist.toStdString());
+        metadata.push_back(duration.toStdString());
+    }
+
+    return metadata;
+}

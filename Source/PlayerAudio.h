@@ -21,6 +21,7 @@ public:
 	double getLength() const;
 	void setLooping(bool loop);
 	void mute();
+	std::vector<std::string> metaData(const juce::File& file);
 	bool isLoopingEnabled() const;
 
 private:

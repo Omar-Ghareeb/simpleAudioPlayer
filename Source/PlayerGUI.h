@@ -26,6 +26,9 @@ private:
 	juce::TextButton goToEndButton{ "Go to end" };
 	juce::TextButton loopButton{ "Loop: Off" };
 	juce::TextButton muteButton{ "Mute" };
+	juce::Label title{ "Title: " };
+	juce::Label artist{ "Artist: " };
+	juce::Label duration{ "Duration: " };
 	juce::Slider volumeSlider;
 
 	std::unique_ptr<juce::FileChooser> fileChooser;
