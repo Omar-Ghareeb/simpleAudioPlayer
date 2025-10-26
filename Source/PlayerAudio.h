@@ -23,10 +23,12 @@ public:
 	void mute();
 	std::vector<std::string> metaData(const juce::File& file);
 	bool isLoopingEnabled() const;
+	void setSpeed(double speed);
 
 private:
 	juce::AudioFormatManager formatManager;
 	std::unique_ptr<juce::AudioFormatReaderSource> readerSource;
+	std::unique_ptr<juce::ResamplingAudioSource> ResamplingAudio;
 	juce::AudioTransportSource transportSource;
 
 	bool isLooping = false;
