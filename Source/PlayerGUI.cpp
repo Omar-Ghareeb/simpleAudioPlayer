@@ -41,6 +41,13 @@ PlayerGUI::PlayerGUI()
 	startTimer(500); // calls timerCallback every 500 milliseconds
 }
 
+PlayerGUI::~PlayerGUI() {}
+
+void PlayerGUI::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
+{
+	playerAudio.prepareToPlay(samplesPerBlockExpected, sampleRate);
+}
+
 void PlayerGUI::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
 	playerAudio.getNextAudioBlock(bufferToFill);
@@ -65,7 +72,7 @@ void PlayerGUI::resized()
 	duration.setBounds(410, 80, 200, 30);
 	volumeSlider.setBounds(20, 130, getWidth() - 40, 30);
 	speedSlider.setBounds(20, 200, getWidth() - 40, 30);
-	positionSlider.setBounds(20, 270, getWidth() - 40, 30);
+  positionSlider.setBounds(20, 270, getWidth() - 40, 30);
 }
 
 void PlayerGUI::buttonClicked(juce::Button* button)

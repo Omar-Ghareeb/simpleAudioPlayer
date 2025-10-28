@@ -23,10 +23,7 @@ public:
 	void mute();
 	std::vector<std::string> metaData(const juce::File& file);
 	bool isLoopingEnabled() const;
-<<<<<<< HEAD
-=======
 	void setSpeed(double speed);
->>>>>>> main
 	double getRelativePos();
 	void setRelativePos(double pos);
 
