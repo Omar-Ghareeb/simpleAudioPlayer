@@ -11,15 +11,20 @@ PlayerAudio::~PlayerAudio()
 void PlayerAudio::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 {
     transportSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
+    ResamplingAudio.reset();
+    ResamplingAudio = std::make_unique<juce::ResamplingAudioSource>(&transportSource, false, 2);
+    ResamplingAudio->prepareToPlay(samplesPerBlockExpected, sampleRate);
 }
 void PlayerAudio::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
-    transportSource.getNextAudioBlock(bufferToFill);
+    ResamplingAudio->getNextAudioBlock(bufferToFill);
+    //transportSource.getNextAudioBlock(bufferToFill);
     if (isLooping && transportSource.getCurrentPosition() >= transportSource.getLengthInSeconds())
     {
         transportSource.setPosition(0.0);
         transportSource.start();
     }
+    
 }
 void PlayerAudio::releaseResources()
 {
@@ -78,15 +83,24 @@ double PlayerAudio::getPosition() const
 
 double PlayerAudio::getRelativePos()
 {
+<<<<<<< HEAD
     double duration = transportSource.getLengthInSeconds();
     return duration > 0 ? transportSource.getCurrentPosition() / duration : 0.0;
+=======
+    return transportSource.getLengthInSeconds()>0? transportSource.getCurrentPosition() / transportSource.getLengthInSeconds() : 0.0;
+>>>>>>> main
 }
 
 void PlayerAudio::setRelativePos(double pos)
 {
+<<<<<<< HEAD
     double duration = transportSource.getLengthInSeconds();
     if (duration > 0)
         transportSource.setPosition(pos * duration);
+=======
+    if (transportSource.getLengthInSeconds() > 0)
+        transportSource.setPosition(pos * transportSource.getLengthInSeconds());
+>>>>>>> main
 }
 
 double PlayerAudio::getLength() const
@@ -133,4 +147,8 @@ std::vector<std::string> PlayerAudio::metaData(const juce::File& file)
     }
 
     return metadata;
+}
+void PlayerAudio::setSpeed(double speed) {
+    ResamplingAudio->setResamplingRatio(speed);
+
 }

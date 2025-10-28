@@ -23,7 +23,11 @@ PlayerGUI::PlayerGUI()
 	volumeSlider.setValue(0.5);
 	volumeSlider.addListener(this);
 	addAndMakeVisible(volumeSlider);
-
+	// PlayBack Speed Slider
+	speedSlider.setRange(0.1, 2.0, 0.01);
+	speedSlider.setValue(1.0);
+	speedSlider.addListener(this);
+	addAndMakeVisible(speedSlider);	
 	//position slider
 	positionSlider.setRange(0.0, 1 ,0.01);
 	positionSlider.setValue(0.0);
@@ -34,14 +38,7 @@ PlayerGUI::PlayerGUI()
 		if (hours > 0) return juce::String::formatted("%d:%02d:%02d", hours, minutes, seconds);
 		 else return juce::String::formatted("%d:%02d", minutes, seconds);
 	};
-	startTimer(500); // calls timerCallback every 20 milliseconds (20 times per second)
-}
-
-PlayerGUI::~PlayerGUI() {}
-
-void PlayerGUI::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
-{
-	playerAudio.prepareToPlay(samplesPerBlockExpected, sampleRate);
+	startTimer(500); // calls timerCallback every 500 milliseconds
 }
 
 void PlayerGUI::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
@@ -67,7 +64,8 @@ void PlayerGUI::resized()
 	artist.setBounds(240, 80, 200, 30);
 	duration.setBounds(410, 80, 200, 30);
 	volumeSlider.setBounds(20, 130, getWidth() - 40, 30);
-	positionSlider.setBounds(20, 170, getWidth() - 40, 30);
+	speedSlider.setBounds(20, 200, getWidth() - 40, 30);
+	positionSlider.setBounds(20, 270, getWidth() - 40, 30);
 }
 
 void PlayerGUI::buttonClicked(juce::Button* button)
@@ -145,17 +143,18 @@ void PlayerGUI::sliderValueChanged(juce::Slider* slider)
 	{
 		playerAudio.setGain(slider->getValue());
 	}
+	else if (slider == &speedSlider) {
+			playerAudio.setSpeed(slider->getValue());
+	}
 	else if (slider == &positionSlider)
 	{
 		if(slider->isMouseButtonDown())
 			playerAudio.setPosition(slider->getValue());
 	}
 }
-
 void PlayerGUI::timerCallback()
 {
 	if (!positionSlider.isMouseButtonDown()) {
 		return positionSlider.setValue(playerAudio.getRelativePos()*playerAudio.getLength(), juce::dontSendNotification);
 	}
 }
-

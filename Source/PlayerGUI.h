@@ -33,6 +33,10 @@ private:
 	juce::Label artist{ "Artist: " };
 	juce::Label duration{ "Duration: " };
 	juce::Slider volumeSlider;
+<<<<<<< HEAD
+=======
+	juce::Slider speedSlider;
+>>>>>>> main
 	juce::Slider positionSlider;
 
 	std::unique_ptr<juce::FileChooser> fileChooser;
