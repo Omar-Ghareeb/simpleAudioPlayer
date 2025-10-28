@@ -27,7 +27,18 @@ PlayerGUI::PlayerGUI()
 	speedSlider.setRange(0.1, 2.0, 0.01);
 	speedSlider.setValue(1.0);
 	speedSlider.addListener(this);
-	addAndMakeVisible(speedSlider);
+	addAndMakeVisible(speedSlider);	
+	//position slider
+	positionSlider.setRange(0.0, 1 ,0.01);
+	positionSlider.setValue(0.0);
+	positionSlider.addListener(this);
+	addAndMakeVisible(positionSlider);
+	positionSlider.textFromValueFunction = [](double value) {
+		int hours = (int)value / 3600, minutes = ((int)value % 3600)/60, seconds = (int)value % 60;
+		if (hours > 0) return juce::String::formatted("%d:%02d:%02d", hours, minutes, seconds);
+		 else return juce::String::formatted("%d:%02d", minutes, seconds);
+	};
+	startTimer(500); // calls timerCallback every 500 milliseconds
 }
 
 PlayerGUI::~PlayerGUI() {}
@@ -61,6 +72,7 @@ void PlayerGUI::resized()
 	duration.setBounds(410, 80, 200, 30);
 	volumeSlider.setBounds(20, 130, getWidth() - 40, 30);
 	speedSlider.setBounds(20, 200, getWidth() - 40, 30);
+  positionSlider.setBounds(20, 270, getWidth() - 40, 30);
 }
 
 void PlayerGUI::buttonClicked(juce::Button* button)
@@ -76,12 +88,18 @@ void PlayerGUI::buttonClicked(juce::Button* button)
 			[this](const juce::FileChooser& fc)
 			{
 				auto files = fc.getResults();
+				if (playerAudio.loadFile(files[0]))
+				{
+					double length = playerAudio.getLength();
+					if (length > 0.0)
+						positionSlider.setRange(0.0, length, 0.01); // REAL seconds range
+				}
 				if (files.size() > 0 && files[0].existsAsFile())
 				{
 					playerAudio.loadFile(files[0]);
 
 					auto metadata = playerAudio.metaData(fileChooser->getResult());
-					title.setText("Titel: " + playerAudio.metaData(fileChooser->getResult())[0], juce::dontSendNotification);
+					title.setText("Title: " + playerAudio.metaData(fileChooser->getResult())[0], juce::dontSendNotification);
 					artist.setText("Artist: " + playerAudio.metaData(fileChooser->getResult())[1], juce::dontSendNotification);
 					duration.setText("Duration: " + playerAudio.metaData(fileChooser->getResult())[2], juce::dontSendNotification);
 				}
@@ -135,5 +153,15 @@ void PlayerGUI::sliderValueChanged(juce::Slider* slider)
 	else if (slider == &speedSlider) {
 			playerAudio.setSpeed(slider->getValue());
 	}
+	else if (slider == &positionSlider)
+	{
+		if(slider->isMouseButtonDown())
+			playerAudio.setPosition(slider->getValue());
+	}
 }
-
+void PlayerGUI::timerCallback()
+{
+	if (!positionSlider.isMouseButtonDown()) {
+		return positionSlider.setValue(playerAudio.getRelativePos()*playerAudio.getLength(), juce::dontSendNotification);
+	}
+}

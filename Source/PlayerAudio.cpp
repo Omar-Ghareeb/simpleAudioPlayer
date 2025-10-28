@@ -81,6 +81,28 @@ double PlayerAudio::getPosition() const
     return transportSource.getCurrentPosition();
 }
 
+double PlayerAudio::getRelativePos()
+{
+<<<<<<< HEAD
+    double duration = transportSource.getLengthInSeconds();
+    return duration > 0 ? transportSource.getCurrentPosition() / duration : 0.0;
+=======
+    return transportSource.getLengthInSeconds()>0? transportSource.getCurrentPosition() / transportSource.getLengthInSeconds() : 0.0;
+>>>>>>> main
+}
+
+void PlayerAudio::setRelativePos(double pos)
+{
+<<<<<<< HEAD
+    double duration = transportSource.getLengthInSeconds();
+    if (duration > 0)
+        transportSource.setPosition(pos * duration);
+=======
+    if (transportSource.getLengthInSeconds() > 0)
+        transportSource.setPosition(pos * transportSource.getLengthInSeconds());
+>>>>>>> main
+}
+
 double PlayerAudio::getLength() const
 {
     return transportSource.getLengthInSeconds();
