@@ -26,6 +26,9 @@ public:
 	void setSpeed(double speed);
 	double getRelativePos();
 	void setRelativePos(double pos);
+	void setabLoop(double start, double end);
+	void clearabLoop();
+	void checkabLoop();
 
 private:
 	juce::AudioFormatManager formatManager;
@@ -36,6 +39,9 @@ private:
 	bool isLooping = false;
 	bool AmIMuted = false;
 	float PastVolume = 0.0;
+	bool isabLooping = false;
+	double abLoopStart = 0.0;
+	double abLoopEnd = 0.0;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PlayerAudio)
 };

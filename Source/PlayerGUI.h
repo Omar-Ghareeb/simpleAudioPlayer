@@ -29,12 +29,14 @@ private:
 	juce::TextButton goToEndButton{ "Go to end" };
 	juce::TextButton loopButton{ "Loop: Off" };
 	juce::TextButton muteButton{ "Mute" };
+	juce::TextButton abLoopButton{ "A-B Loop: Off" };
 	juce::Label title{ "Title: " };
 	juce::Label artist{ "Artist: " };
 	juce::Label duration{ "Duration: " };
 	juce::Slider volumeSlider;
 	juce::Slider speedSlider;
 	juce::Slider positionSlider;
+	juce::Slider abLoopSlider;
 
 	std::unique_ptr<juce::FileChooser> fileChooser;
 
