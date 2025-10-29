@@ -24,7 +24,7 @@ void PlayerAudio::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferTo
         transportSource.setPosition(0.0);
         transportSource.start();
     }
-    
+	checkabLoop();
 }
 void PlayerAudio::releaseResources()
 {
@@ -106,6 +106,34 @@ void PlayerAudio::setLooping(bool loop)
 {
     isLooping = loop;
 }
+
+void PlayerAudio::setabLoop(double start, double end)
+{
+    if(start<end && start>=0 && end<=transportSource.getLengthInSeconds())
+    {
+        abLoopStart = start;
+        abLoopEnd = end;
+        isabLooping = true;
+	}
+}
+
+void PlayerAudio::clearabLoop()
+{
+    isabLooping = false;
+}
+
+void PlayerAudio::checkabLoop()
+{
+    if (isabLooping)
+    {
+        if (transportSource.getCurrentPosition() >= abLoopEnd || transportSource.getCurrentPosition() < abLoopStart) // Check if the current position is outside the loop
+        {
+            transportSource.setPosition(abLoopStart);
+            transportSource.start();
+        }
+    }
+}
+
 void PlayerAudio::mute() {
     if (!AmIMuted) {
         PastVolume = transportSource.getGain();

@@ -4,7 +4,7 @@
 PlayerGUI::PlayerGUI()
 {
 	// Add buttons
-	for (auto* btn : { &loadButton, &playPauseButton, &goToStartButton ,&goToEndButton, &loopButton, &muteButton })
+	for (auto* btn : { &loadButton, &playPauseButton, &goToStartButton ,&goToEndButton, &loopButton, &muteButton, &abLoopButton })
 	{
 		btn->addListener(this);
 		addAndMakeVisible(btn);
@@ -27,7 +27,7 @@ PlayerGUI::PlayerGUI()
 	speedSlider.setRange(0.1, 2.0, 0.01);
 	speedSlider.setValue(1.0);
 	speedSlider.addListener(this);
-	addAndMakeVisible(speedSlider);	
+	addAndMakeVisible(speedSlider);
 	//position slider
 	positionSlider.setRange(0.0, 1 ,0.01);
 	positionSlider.setValue(0.0);
@@ -39,6 +39,13 @@ PlayerGUI::PlayerGUI()
 		 else return juce::String::formatted("%d:%02d", minutes, seconds);
 	};
 	startTimer(500); // calls timerCallback every 500 milliseconds
+	//abLoop Slider
+	abLoopSlider.setRange(0.0, 1);
+	abLoopSlider.setSliderStyle(juce::Slider::TwoValueHorizontal);
+	abLoopSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+	addAndMakeVisible(abLoopSlider);
+	abLoopSlider.setVisible(false);
+	abLoopSlider.addListener(this);
 }
 
 PlayerGUI::~PlayerGUI() {}
@@ -67,12 +74,14 @@ void PlayerGUI::resized()
 	goToEndButton.setBounds(340, y, 80, 40);
 	loopButton.setBounds(440, y, 100, 40);
 	muteButton.setBounds(560, y, 80, 40);
+	abLoopButton.setBounds(660, y, 100, 40);
 	title.setBounds(20, 80, 200, 30);
 	artist.setBounds(240, 80, 200, 30);
 	duration.setBounds(410, 80, 200, 30);
 	volumeSlider.setBounds(20, 130, getWidth() - 40, 30);
-	speedSlider.setBounds(20, 200, getWidth() - 40, 30);
-  positionSlider.setBounds(20, 270, getWidth() - 40, 30);
+	speedSlider.setBounds(20, 180, getWidth() - 40, 30);
+	positionSlider.setBounds(20, 230, getWidth() - 40, 30);
+	abLoopSlider.setBounds(100, 280, getWidth() - 120, 30);
 }
 
 void PlayerGUI::buttonClicked(juce::Button* button)
@@ -131,6 +140,12 @@ void PlayerGUI::buttonClicked(juce::Button* button)
 	}
 	else if (button == &loopButton)
 	{
+		if(abLoopButton.getToggleState()){
+			abLoopButton.setToggleState(false, juce::dontSendNotification);
+			abLoopButton.setButtonText("A-B Loop: Off");
+			abLoopSlider.setVisible(false);
+			playerAudio.clearabLoop();
+		}
 		bool loop = !loopButton.getToggleState();
 		loopButton.setToggleState(loop, juce::dontSendNotification);
 		loopButton.setButtonText(loop ? "Loop: On" : "Loop: Off");
@@ -141,6 +156,23 @@ void PlayerGUI::buttonClicked(juce::Button* button)
 		muteButton.setToggleState(muted, juce::dontSendNotification);
 		playerAudio.mute();
 		muteButton.setButtonText(muted ? "Muted" : "Mute");
+	}
+	else if(button == &abLoopButton) {
+		if (loopButton.getToggleState()) {
+			loopButton.setToggleState(false, juce::dontSendNotification);
+			loopButton.setButtonText("Loop: Off");
+			playerAudio.setLooping(false);
+		}
+		bool abLoop = !abLoopButton.getToggleState();
+		abLoopButton.setToggleState(abLoop, juce::dontSendNotification);
+		abLoopButton.setButtonText(abLoop ? "A-B Loop: On" : "A-B Loop: Off");
+		abLoopSlider.setVisible(abLoop);
+		if (abLoop) {
+			abLoopSlider.setRange(0.0, playerAudio.getLength(),0.01);
+			abLoopSlider.setMinAndMaxValues(0.0, playerAudio.getLength(), juce::dontSendNotification);
+			playerAudio.setabLoop(0.0, playerAudio.getLength());
+		}
+		else playerAudio.clearabLoop();
 	}
 }
 
@@ -158,7 +190,11 @@ void PlayerGUI::sliderValueChanged(juce::Slider* slider)
 		if(slider->isMouseButtonDown())
 			playerAudio.setPosition(slider->getValue());
 	}
+	else if (slider == &abLoopSlider) {
+		playerAudio.setabLoop(abLoopSlider.getMinValue(), abLoopSlider.getMaxValue());
+	}
 }
+
 void PlayerGUI::timerCallback()
 {
 	if (!positionSlider.isMouseButtonDown()) {
