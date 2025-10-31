@@ -37,6 +37,7 @@ public:
 	int getCurrentPlayListIndex() const;
 	juce::File getCurrentFile() const;
 	int getPlayListSize() const;
+	juce::File getPlayListFileAt(int index) const;
 	void forward10Seconds();
 	void rewind10Seconds();
 

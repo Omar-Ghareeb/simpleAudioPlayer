@@ -231,6 +231,11 @@ int PlayerAudio::getPlayListSize() const
     return playList.size();
 }
 
+juce::File PlayerAudio::getPlayListFileAt(int index) const
+{
+    return playList[index];
+}
+
 void PlayerAudio::forward10Seconds()
 {
     double newPosition = transportSource.getCurrentPosition() + 10.0;

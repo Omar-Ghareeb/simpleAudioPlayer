@@ -205,8 +205,8 @@ void PlayerGUI::buttonClicked(juce::Button* button)
 				for (const auto& file : files) {
 					if (file.existsAsFile()) {
 						playerAudio.addToPlayList(file);
+						playListTable.updateContent();
 					}
-					playListTable.updateContent();
 				}
 			});
 	}
@@ -293,7 +293,7 @@ void PlayerGUI::paintListBoxItem(int rowNumber, juce::Graphics& g, int width, in
 		if (rowIsSelected)
 			g.fillAll(juce::Colours::deeppink);
 		g.setColour(juce::Colours::black);
-		auto metadata = playerAudio.metaData(playerAudio.getCurrentFile());
+		auto metadata = playerAudio.metaData(playerAudio.getPlayListFileAt(row));
 		juce::String displayInfo = juce::String(rowNumber + 1) + ". " + metadata[0];
 		g.drawText(displayInfo, 4, 0, width - 4, height, juce::Justification::centredLeft);
 
@@ -303,11 +303,14 @@ void PlayerGUI::paintListBoxItem(int rowNumber, juce::Graphics& g, int width, in
 void PlayerGUI::listBoxItemClicked(int row, const juce::MouseEvent& e)
 {
 	if (row >= 0 && row < playerAudio.getPlayListSize()) {
-		playerAudio.loadFile(playerAudio.getCurrentFile());
-		auto metadata = playerAudio.metaData(playerAudio.getCurrentFile());
+		playerAudio.loadFile(playerAudio.getPlayListFileAt(row));
+		auto metadata = playerAudio.metaData(playerAudio.getPlayListFileAt(row));
 		title.setText("Title: " + juce::String(metadata[0]), juce::dontSendNotification);
 		artist.setText("Artist: " + juce::String(metadata[1]), juce::dontSendNotification);
 		duration.setText("Duration: " + juce::String(metadata[2]), juce::dontSendNotification);
 		playerAudio.play();
+		playPauseButton.setButtonText("Pause");
+		bool isPlaying = !playPauseButton.getToggleState();
+		playPauseButton.setToggleState(isPlaying, juce::dontSendNotification);
 	}
 }
