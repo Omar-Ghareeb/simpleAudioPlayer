@@ -29,12 +29,23 @@ public:
 	void setabLoop(double start, double end);
 	void clearabLoop();
 	void checkabLoop();
+	void addToPlayList(const juce::File& file);
+	void removeFromPlayList(int index);
+	void playFromPlayList(int index);
+	void nextTrack();
+	void previousTrack();
+	int getCurrentPlayListIndex() const;
+	juce::File getCurrentFile() const;
+	int getPlayListSize() const;
+	void forward10Seconds();
+	void rewind10Seconds();
 
 private:
 	juce::AudioFormatManager formatManager;
 	std::unique_ptr<juce::AudioFormatReaderSource> readerSource;
 	std::unique_ptr<juce::ResamplingAudioSource> ResamplingAudio;
 	juce::AudioTransportSource transportSource;
+	std::vector<juce::File> playList;
 
 	bool isLooping = false;
 	bool AmIMuted = false;
@@ -42,6 +53,7 @@ private:
 	bool isabLooping = false;
 	double abLoopStart = 0.0;
 	double abLoopEnd = 0.0;
+	int currentPlayListIndex = -1;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PlayerAudio)
 };

@@ -169,3 +169,79 @@ void PlayerAudio::setSpeed(double speed) {
     ResamplingAudio->setResamplingRatio(speed);
 
 }
+
+void PlayerAudio::addToPlayList(const juce::File& file)
+{
+    playList.push_back(file);
+    currentPlayListIndex++;
+}
+
+void PlayerAudio::removeFromPlayList(int index)
+{
+    if (index >= 0 && index < playList.size()) {
+        playList.erase(playList.begin() + index);
+        if (currentPlayListIndex == index)
+            currentPlayListIndex = -1;
+        else if (currentPlayListIndex > index)
+            currentPlayListIndex--;
+    }
+}
+
+void PlayerAudio::playFromPlayList(int index)
+{
+    if (index >= 0 && index < (playList.size())) {
+        loadFile(playList[index]);
+        currentPlayListIndex = index;
+    }
+}
+
+void PlayerAudio::nextTrack()
+{
+    if (!playList.empty()) {
+        currentPlayListIndex = (currentPlayListIndex + 1) % playList.size();
+        loadFile(playList[currentPlayListIndex]);
+        play();
+    }
+}
+
+void PlayerAudio::previousTrack()
+{
+    if (!playList.empty()) {
+        currentPlayListIndex = (currentPlayListIndex - 1 + playList.size()) % playList.size();
+        loadFile(playList[currentPlayListIndex]);
+        play();
+    }
+}
+
+int PlayerAudio::getCurrentPlayListIndex() const
+{
+    return currentPlayListIndex;
+}
+
+juce::File PlayerAudio::getCurrentFile() const
+{
+    if (currentPlayListIndex >= 0 && currentPlayListIndex < playList.size()) {
+        return playList[currentPlayListIndex];
+    }
+    return juce::File();
+}
+
+int PlayerAudio::getPlayListSize() const
+{
+    return playList.size();
+}
+
+void PlayerAudio::forward10Seconds()
+{
+    double newPosition = transportSource.getCurrentPosition() + 10.0;
+    if (newPosition > transportSource.getLengthInSeconds())
+        newPosition = transportSource.getLengthInSeconds();
+    transportSource.setPosition(newPosition);
+}
+void PlayerAudio::rewind10Seconds()
+{
+    double newPosition = transportSource.getCurrentPosition() - 10.0;
+    if (newPosition < 0.0)
+        newPosition = 0.0;
+    transportSource.setPosition(newPosition);
+}

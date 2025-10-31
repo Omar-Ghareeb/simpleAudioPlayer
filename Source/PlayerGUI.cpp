@@ -4,7 +4,12 @@
 PlayerGUI::PlayerGUI()
 {
 	// Add buttons
-	for (auto* btn : { &loadButton, &playPauseButton, &goToStartButton ,&goToEndButton, &loopButton, &muteButton, &abLoopButton })
+	juce::TextButton* buttons[] = {
+		&loadButton, &playPauseButton, &goToStartButton, &goToEndButton, &loopButton,
+		&muteButton, &abLoopButton, &addToPlaylistButton, &removeFromPlaylistButton,
+		&nextButton,&previousButton,&forward10Button,&rewind10Button
+	};
+	for (auto* btn : buttons)
 	{
 		btn->addListener(this);
 		addAndMakeVisible(btn);
@@ -46,6 +51,11 @@ PlayerGUI::PlayerGUI()
 	addAndMakeVisible(abLoopSlider);
 	abLoopSlider.setVisible(false);
 	abLoopSlider.addListener(this);
+
+	// Playlist Table
+	addAndMakeVisible(playListTable);
+	playListTable.setModel(this);
+	playListTable.setColour(juce::ListBox::backgroundColourId, juce::Colours::pink);
 }
 
 PlayerGUI::~PlayerGUI() {}
@@ -75,6 +85,8 @@ void PlayerGUI::resized()
 	loopButton.setBounds(440, y, 100, 40);
 	muteButton.setBounds(560, y, 80, 40);
 	abLoopButton.setBounds(660, y, 100, 40);
+	forward10Button.setBounds(780, y, 60, 40);
+	rewind10Button.setBounds(860, y, 60, 40);
 	title.setBounds(20, 80, 200, 30);
 	artist.setBounds(240, 80, 200, 30);
 	duration.setBounds(410, 80, 200, 30);
@@ -82,6 +94,11 @@ void PlayerGUI::resized()
 	speedSlider.setBounds(20, 180, getWidth() - 40, 30);
 	positionSlider.setBounds(20, 230, getWidth() - 40, 30);
 	abLoopSlider.setBounds(100, 280, getWidth() - 120, 30);
+	addToPlaylistButton.setBounds(20, 350, 100, 40);
+	removeFromPlaylistButton.setBounds(140, 350, 100, 40);
+	nextButton.setBounds(260, 350, 80, 40);
+	previousButton.setBounds(360, 350, 80, 40);
+	playListTable.setBounds(20, 410, getWidth() - 40, getHeight() - 350);
 }
 
 void PlayerGUI::buttonClicked(juce::Button* button)
@@ -174,6 +191,68 @@ void PlayerGUI::buttonClicked(juce::Button* button)
 		}
 		else playerAudio.clearabLoop();
 	}
+
+	else if (button == &addToPlaylistButton) {
+		fileChooser = std::make_unique<juce::FileChooser>("Select audio files to add to playlist...",
+			juce::File{},
+			"*.wav;*.mp3;*.aiff");
+		fileChooser->launchAsync(juce::FileBrowserComponent::openMode
+			| juce::FileBrowserComponent::canSelectFiles
+			| juce::FileBrowserComponent::canSelectMultipleItems,
+			[this](const juce::FileChooser& fc)
+			{
+				auto files = fc.getResults();
+				for (const auto& file : files) {
+					if (file.existsAsFile()) {
+						playerAudio.addToPlayList(file);
+					}
+					playListTable.updateContent();
+				}
+			});
+	}
+	else if (button == &removeFromPlaylistButton) {
+		int selectedRow = playListTable.getSelectedRow();
+		if (selectedRow >= 0) {
+			playerAudio.removeFromPlayList(selectedRow);
+			playListTable.updateContent();
+		}
+	}
+
+	else if (button == &nextButton) {
+		playerAudio.nextTrack();
+		int currentIndex = playerAudio.getCurrentPlayListIndex();
+		if (currentIndex >= 0) {
+			auto metadata = playerAudio.metaData(playerAudio.getCurrentFile());
+			title.setText("Title: " + metadata[0], juce::dontSendNotification);
+			artist.setText("Artist: " + metadata[1], juce::dontSendNotification);
+			duration.setText("Duration: " + metadata[2], juce::dontSendNotification);
+			playListTable.selectRow(currentIndex);
+			playListTable.updateContent();
+			playListTable.repaint();
+		}
+
+	}
+	else if (button == &previousButton) {
+		playerAudio.previousTrack();
+		int currentIndex = playerAudio.getCurrentPlayListIndex();
+		if (currentIndex >= 0) {
+			auto metadata = playerAudio.metaData(playerAudio.getCurrentFile());
+			title.setText("Title: " + metadata[0], juce::dontSendNotification);
+			artist.setText("Artist: " + metadata[1], juce::dontSendNotification);
+			duration.setText("Duration: " + metadata[2], juce::dontSendNotification);
+			playListTable.selectRow(currentIndex);
+			playListTable.updateContent();
+			playListTable.repaint();
+		}
+
+	}
+	else if (button == &forward10Button) {
+		playerAudio.forward10Seconds();
+		}
+
+	else if (button == &rewind10Button) {
+			playerAudio.rewind10Seconds();
+			}
 }
 
 void PlayerGUI::sliderValueChanged(juce::Slider* slider)
@@ -199,5 +278,36 @@ void PlayerGUI::timerCallback()
 {
 	if (!positionSlider.isMouseButtonDown()) {
 		return positionSlider.setValue(playerAudio.getRelativePos()*playerAudio.getLength(), juce::dontSendNotification);
+	}
+}
+
+int PlayerGUI::getNumRows()
+{
+	int size = playerAudio.getPlayListSize();
+	return size > 0 ? size : 0;
+}
+
+void PlayerGUI::paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected)
+{
+	if (!(rowNumber < 0 || rowNumber >= playerAudio.getPlayListSize())) {
+		if (rowIsSelected)
+			g.fillAll(juce::Colours::deeppink);
+		g.setColour(juce::Colours::black);
+		auto metadata = playerAudio.metaData(playerAudio.getCurrentFile());
+		juce::String displayInfo = juce::String(rowNumber + 1) + ". " + metadata[0];
+		g.drawText(displayInfo, 4, 0, width - 4, height, juce::Justification::centredLeft);
+
+	}
+}
+
+void PlayerGUI::listBoxItemClicked(int row, const juce::MouseEvent& e)
+{
+	if (row >= 0 && row < playerAudio.getPlayListSize()) {
+		playerAudio.loadFile(playerAudio.getCurrentFile());
+		auto metadata = playerAudio.metaData(playerAudio.getCurrentFile());
+		title.setText("Title: " + juce::String(metadata[0]), juce::dontSendNotification);
+		artist.setText("Artist: " + juce::String(metadata[1]), juce::dontSendNotification);
+		duration.setText("Duration: " + juce::String(metadata[2]), juce::dontSendNotification);
+		playerAudio.play();
 	}
 }

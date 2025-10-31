@@ -5,7 +5,8 @@
 class PlayerGUI : public juce::Component,
 	public juce::Button::Listener,
 	public juce::Slider::Listener,
-	public juce::Timer
+	public juce::Timer,
+	public juce::ListBoxModel
 {
 public:
 	PlayerGUI();
@@ -37,12 +38,21 @@ private:
 	juce::Slider speedSlider;
 	juce::Slider positionSlider;
 	juce::Slider abLoopSlider;
+	juce::TextButton addToPlaylistButton{ "Add to Playlist" };
+	juce::TextButton removeFromPlaylistButton{ "Remove from Playlist" };
+	juce::TextButton nextButton{ "Next" };
+	juce::TextButton previousButton{ "Previous" };
+	juce::ListBox playListTable;
+	juce::TextButton forward10Button{ "+10s" };
+	juce::TextButton rewind10Button{ "-10s" };
 
 	std::unique_ptr<juce::FileChooser> fileChooser;
 
 	// Event handlers
 	void buttonClicked(juce::Button* button) override;
 	void sliderValueChanged(juce::Slider* slider) override;
-
+	void paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) override;
+	int getNumRows() override;
+	void PlayerGUI::listBoxItemClicked(int row, const juce::MouseEvent& e) override;
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PlayerGUI)
 };
