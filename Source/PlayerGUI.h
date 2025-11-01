@@ -54,12 +54,15 @@ private:
 	juce::AudioThumbnailCache thumbnailCache;
 	juce::AudioThumbnail thumbnail;
 	std::unique_ptr<juce::FileChooser> fileChooser;
+	std::unique_ptr<juce::PropertiesFile> propertiesFile;
 
 	// Event handlers
 	void buttonClicked(juce::Button* button) override;
 	void sliderValueChanged(juce::Slider* slider) override;
 	void paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) override;
 	int getNumRows() override;
+	void saveSession();
+	void loadSession();
 	void PlayerGUI::listBoxItemClicked(int row, const juce::MouseEvent& e) override;
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PlayerGUI)
 };

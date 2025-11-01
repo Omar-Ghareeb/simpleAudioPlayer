@@ -37,6 +37,7 @@ bool PlayerAudio::loadFile(const juce::File& file)
         transportSource.stop();
         transportSource.setSource(nullptr);
         readerSource.reset();
+		currentFile = file;
 
         readerSource = std::make_unique<juce::AudioFormatReaderSource>(reader, true);
 
@@ -266,4 +267,11 @@ void PlayerAudio::clearMarkers() {
 }
 juce::AudioFormatManager& PlayerAudio::getForamt() {
     return formatManager;
+}
+
+juce::String PlayerAudio::getCurrentFilePath() const {
+    if (currentFile.existsAsFile())
+        return currentFile.getFullPathName();
+	else 
+		return "";
 }
