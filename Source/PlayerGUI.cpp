@@ -66,9 +66,20 @@ PlayerGUI::PlayerGUI()
 	//waveform
 	thumbnail.addChangeListener(this);
 	startTimer(40); // calls timerCallback every 40 milliseconds
+
+	//load session file settings
+	juce::PropertiesFile::Options options;
+	options.applicationName = "AudioPlayerApp";
+	options.filenameSuffix = ".settings";
+	options.folderName = "AudioPlayerAppData";
+	propertiesFile = std::make_unique<juce::PropertiesFile>(options);
+	loadSession();
 }
 
-PlayerGUI::~PlayerGUI() {}
+PlayerGUI::~PlayerGUI()
+{
+	saveSession();
+}
 
 void PlayerGUI::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 {
@@ -380,4 +391,35 @@ void PlayerGUI::paint(juce::Graphics& g) {
 
 
 
+}
+
+void PlayerGUI::saveSession()
+{
+	if (auto currentFile = playerAudio.getCurrentFile(); currentFile.existsAsFile())
+		propertiesFile->setValue("filePath", currentFile.getFullPathName());
+	propertiesFile->setValue("positionSeconds", playerAudio.getPosition());
+	propertiesFile->setValue("length", playerAudio.getLength());
+	propertiesFile->saveIfNeeded();
+}
+
+void PlayerGUI::loadSession()
+{
+	auto filePath = propertiesFile->getValue("filePath","");
+	juce::File file(filePath);
+	if (file.existsAsFile()) {
+		playerAudio.loadFile(file);
+		playerAudio.clearMarkers();
+		Markers.clear();
+		thumbnail.setSource(new juce::FileInputSource(file));
+		auto metadata = playerAudio.metaData(file);
+		title.setText("Title: " + metadata[0], juce::dontSendNotification);
+		artist.setText("Artist: " + metadata[1], juce::dontSendNotification);
+		duration.setText("Duration: " + metadata[2], juce::dontSendNotification);
+	}
+	double length = propertiesFile->getDoubleValue("length",1);
+	if (length > 0.0)
+		positionSlider.setRange(0.0, length, 0.01);
+	double pos = propertiesFile->getDoubleValue("positionSeconds", 0.0);
+	if (pos > 0.0 && pos < playerAudio.getLength())
+		playerAudio.setPosition(pos);
 }
