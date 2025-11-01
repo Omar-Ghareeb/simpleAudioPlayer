@@ -250,3 +250,20 @@ void PlayerAudio::rewind10Seconds()
         newPosition = 0.0;
     transportSource.setPosition(newPosition);
 }
+
+void PlayerAudio::addMarker() {
+    markers.push_back(getPosition());
+}
+void PlayerAudio::moveToMarker(int id) {
+    transportSource.setPosition(markers[id - 1]);
+}
+int PlayerAudio::getSize() const {
+    return markers.size();
+}
+void PlayerAudio::clearMarkers() {
+    markers.clear();
+    markers.shrink_to_fit();
+}
+juce::AudioFormatManager& PlayerAudio::getForamt() {
+    return formatManager;
+}

@@ -5,8 +5,10 @@
 class PlayerGUI : public juce::Component,
 	public juce::Button::Listener,
 	public juce::Slider::Listener,
+	public juce::ComboBox::Listener,
 	public juce::Timer,
-	public juce::ListBoxModel
+	public juce::ListBoxModel,
+	public juce::ChangeListener
 {
 public:
 	PlayerGUI();
@@ -17,8 +19,10 @@ public:
 	void prepareToPlay(int samplesPerBlockExpected, double sampleRate);
 	void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill);
 	void releaseResources();
-
-	void timerCallback() override;
+	void comboBoxChanged(juce::ComboBox* box) override; // handels changes in comboBox
+	void timerCallback() override ;
+	void changeListenerCallback(juce::ChangeBroadcaster* source) override;
+	void paint(juce::Graphics& g) override;
 
 private:
 	PlayerAudio playerAudio;
@@ -45,7 +49,10 @@ private:
 	juce::ListBox playListTable;
 	juce::TextButton forward10Button{ "+10s" };
 	juce::TextButton rewind10Button{ "-10s" };
-
+	juce::ComboBox Markers;
+	juce::TextButton addMarker{ "Add Marker" };
+	juce::AudioThumbnailCache thumbnailCache;
+	juce::AudioThumbnail thumbnail;
 	std::unique_ptr<juce::FileChooser> fileChooser;
 
 	// Event handlers

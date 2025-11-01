@@ -2,12 +2,15 @@
 
 
 PlayerGUI::PlayerGUI()
+//waveform change detector
+		: thumbnailCache(7),
+		thumbnail(512, playerAudio.getForamt(), thumbnailCache)
 {
 	// Add buttons
 	juce::TextButton* buttons[] = {
 		&loadButton, &playPauseButton, &goToStartButton, &goToEndButton, &loopButton,
 		&muteButton, &abLoopButton, &addToPlaylistButton, &removeFromPlaylistButton,
-		&nextButton,&previousButton,&forward10Button,&rewind10Button
+		&nextButton,&previousButton,&forward10Button,&rewind10Button, &addMarker,
 	};
 	for (auto* btn : buttons)
 	{
@@ -43,7 +46,7 @@ PlayerGUI::PlayerGUI()
 		if (hours > 0) return juce::String::formatted("%d:%02d:%02d", hours, minutes, seconds);
 		 else return juce::String::formatted("%d:%02d", minutes, seconds);
 	};
-	startTimer(500); // calls timerCallback every 500 milliseconds
+	
 	//abLoop Slider
 	abLoopSlider.setRange(0.0, 1);
 	abLoopSlider.setSliderStyle(juce::Slider::TwoValueHorizontal);
@@ -56,6 +59,13 @@ PlayerGUI::PlayerGUI()
 	addAndMakeVisible(playListTable);
 	playListTable.setModel(this);
 	playListTable.setColour(juce::ListBox::backgroundColourId, juce::Colours::pink);
+	// markers comboBox 
+	addAndMakeVisible(Markers);
+	Markers.addListener(this);
+	Markers.setText("select your marker");
+	//waveform
+	thumbnail.addChangeListener(this);
+	startTimer(40); // calls timerCallback every 40 milliseconds
 }
 
 PlayerGUI::~PlayerGUI() {}
@@ -98,7 +108,9 @@ void PlayerGUI::resized()
 	removeFromPlaylistButton.setBounds(140, 350, 100, 40);
 	nextButton.setBounds(260, 350, 80, 40);
 	previousButton.setBounds(360, 350, 80, 40);
-	playListTable.setBounds(20, 410, getWidth() - 40, getHeight() - 350);
+	playListTable.setBounds(20, 410, 420, getHeight() - 350);
+	addMarker.setBounds(960, y, 80, 40);
+	Markers.setBounds(960, y + 30, 80, 40);
 }
 
 void PlayerGUI::buttonClicked(juce::Button* button)
@@ -123,6 +135,9 @@ void PlayerGUI::buttonClicked(juce::Button* button)
 				if (files.size() > 0 && files[0].existsAsFile())
 				{
 					playerAudio.loadFile(files[0]);
+					playerAudio.clearMarkers();
+					Markers.clear();
+					thumbnail.setSource(new juce::FileInputSource(files[0]));
 
 					auto metadata = playerAudio.metaData(fileChooser->getResult());
 					title.setText("Title: " + playerAudio.metaData(fileChooser->getResult())[0], juce::dontSendNotification);
@@ -253,6 +268,11 @@ void PlayerGUI::buttonClicked(juce::Button* button)
 	else if (button == &rewind10Button) {
 			playerAudio.rewind10Seconds();
 			}
+	else if (button == &addMarker) {
+					Markers.addItem(std::to_string(playerAudio.getPosition()), playerAudio.getSize() + 1);
+					playerAudio.addMarker();
+					}
+   
 }
 
 void PlayerGUI::sliderValueChanged(juce::Slider* slider)
@@ -276,9 +296,12 @@ void PlayerGUI::sliderValueChanged(juce::Slider* slider)
 
 void PlayerGUI::timerCallback()
 {
-	if (!positionSlider.isMouseButtonDown()) {
-		return positionSlider.setValue(playerAudio.getRelativePos()*playerAudio.getLength(), juce::dontSendNotification);
-	}
+		
+		if (!positionSlider.isMouseButtonDown()) {
+				positionSlider.setValue(playerAudio.getRelativePos() * playerAudio.getLength(), juce::dontSendNotification);
+		}
+
+		repaint();
 }
 
 int PlayerGUI::getNumRows()
@@ -293,7 +316,7 @@ void PlayerGUI::paintListBoxItem(int rowNumber, juce::Graphics& g, int width, in
 		if (rowIsSelected)
 			g.fillAll(juce::Colours::deeppink);
 		g.setColour(juce::Colours::black);
-		auto metadata = playerAudio.metaData(playerAudio.getPlayListFileAt(row));
+		auto metadata = playerAudio.metaData(playerAudio.getPlayListFileAt(rowNumber));
 		juce::String displayInfo = juce::String(rowNumber + 1) + ". " + metadata[0];
 		g.drawText(displayInfo, 4, 0, width - 4, height, juce::Justification::centredLeft);
 
@@ -312,5 +335,49 @@ void PlayerGUI::listBoxItemClicked(int row, const juce::MouseEvent& e)
 		playPauseButton.setButtonText("Pause");
 		bool isPlaying = !playPauseButton.getToggleState();
 		playPauseButton.setToggleState(isPlaying, juce::dontSendNotification);
+		playerAudio.clearMarkers();
+		Markers.clear();
+		double length = playerAudio.getLength();
+		if (length > 0.0)
+				positionSlider.setRange(0.0, length, 0.01); // REAL seconds range
+		thumbnail.setSource(new juce::FileInputSource(playerAudio.getPlayListFileAt(row)));
 	}
+}
+void PlayerGUI::comboBoxChanged(juce::ComboBox* box) {
+		if (box = &Markers) {
+				if (Markers.getSelectedId() > 0) {
+						playerAudio.moveToMarker((Markers.getSelectedId()));
+				}
+				Markers.setSelectedId(0);
+
+
+		}
+}
+void PlayerGUI::changeListenerCallback(juce::ChangeBroadcaster* source)
+{
+		if (source == &thumbnail) { repaint(); }
+}
+void PlayerGUI::paint(juce::Graphics& g) {
+		juce::Rectangle<int> thumbnailBounds(450, 300, getWidth() - 450, getHeight() - 300);
+		if (thumbnail.getNumChannels() == 0) {
+				g.setColour(juce::Colours::darkgrey);
+				g.fillRect(thumbnailBounds);
+				g.setColour(juce::Colours::red);
+				g.drawFittedText("No File Loaded", thumbnailBounds, juce::Justification::centred, 1);
+		}
+		else {
+				g.setColour(juce::Colours::black);
+				g.fillRect(thumbnailBounds);
+				g.setColour(juce::Colours::purple);
+				thumbnail.drawChannels(g, thumbnailBounds, 0.0, thumbnail.getTotalLength(), 1.0f);
+
+				double positionInSec = playerAudio.getPosition();
+				double thumbnailLength = thumbnail.getTotalLength();
+				int songPtr = int((getWidth()-450) * (positionInSec / thumbnailLength))+450;
+				g.setColour(juce::Colours::red);
+				g.drawLine((float)songPtr, float(getHeight()), (float)songPtr, float(getHeight() - 30), 2.0f);
+		}
+
+
+
 }

@@ -40,13 +40,18 @@ public:
 	juce::File getPlayListFileAt(int index) const;
 	void forward10Seconds();
 	void rewind10Seconds();
-
+	void addMarker();
+	void moveToMarker(int id);
+	int getSize() const;
+	void clearMarkers();
+	juce::AudioFormatManager& getForamt();
 private:
 	juce::AudioFormatManager formatManager;
 	std::unique_ptr<juce::AudioFormatReaderSource> readerSource;
 	std::unique_ptr<juce::ResamplingAudioSource> ResamplingAudio;
 	juce::AudioTransportSource transportSource;
 	std::vector<juce::File> playList;
+	std::vector<double> markers;
 
 	bool isLooping = false;
 	bool AmIMuted = false;
