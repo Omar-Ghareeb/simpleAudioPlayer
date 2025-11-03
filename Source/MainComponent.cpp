@@ -30,7 +30,8 @@ void MainComponent::releaseResources()
 
 void MainComponent::resized()
 {
-    player1.setBounds(20, 20, getWidth() - 40, getHeight() - 50);
+    player1.setBounds(getLocalBounds());
+    //player1.setBounds(20, 20, getWidth() - 40, getHeight() - 50);
 }
 
 void MainComponent::buttonClicked(juce::Button* button) {}
