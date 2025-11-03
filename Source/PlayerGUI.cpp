@@ -121,6 +121,7 @@ PlayerGUI::PlayerGUI()
 	positionSlider.setRange(0.0, 1 ,0.01);
 	positionSlider.setValue(0.0);
 	positionSlider.addListener(this);
+	positionSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
 	positionSlider.setColour(juce::Slider::thumbColourId, juce::Colour(0xffa020f0));
 	positionSlider.setColour(juce::Slider::trackColourId, juce::Colour(0xffa020f0));
 	positionSlider.setColour(juce::Slider::backgroundColourId, juce::Colours::darkgrey);
@@ -185,36 +186,39 @@ void PlayerGUI::releaseResources()
 
 void PlayerGUI::resized()
 {
-	int y = 20;
-	loadButton.setBounds(20, y, 100, 40);
-	playPauseButton.setBounds(140, y, 80, 40);
-	goToStartButton.setBounds(240, y, 80, 40);
-	goToEndButton.setBounds(340, y, 80, 40);
-	loopButton.setBounds(440, y, 100, 40);
-	muteButton.setBounds(560, y, 80, 40);
-	abLoopButton.setBounds(660, y, 100, 40);
-	forward10Button.setBounds(780, y, 60, 40);
-	rewind10Button.setBounds(860, y, 60, 40);
-	title.setBounds(20, 80, 200, 30);
-	artist.setBounds(240, 80, 200, 30);
-	duration.setBounds(410, 80, 200, 30);
-	volumeSlider.setBounds(60, 130, 200, 30);
-	juce::Rectangle<float> volumeArea(20, 130, 30, 30);
+	loadButton.setBoundsRelative(0.84f, 0.8f, 0.07f, 0.07f);
+	playPauseButton.setBoundsRelative(0.59f, 0.79f, 0.08f, 0.08f);
+	goToStartButton.setBoundsRelative(0.55f, 0.04f, 0.06f, 0.06f);
+	goToEndButton.setBoundsRelative(0.62f, 0.04f, 0.06f, 0.06f);
+	loopButton.setBoundsRelative(0.85f, 0.05f, 0.06f, 0.06f);
+	muteButton.setBoundsRelative(0.79f, 0.05f, 0.06f, 0.06f);
+	abLoopButton.setBoundsRelative(0.7f, 0.04f, 0.08f, 0.06f);
+	forward10Button.setBoundsRelative(0.69f, 0.8f, 0.06f, 0.06f);
+	rewind10Button.setBoundsRelative(0.53f, 0.8f, 0.06f, 0.06f);
+	title.setBoundsRelative(0.3f, 0.03f, 0.2f, 0.1f);
+	artist.setBoundsRelative(0.3, 0.11f, 0.2f, 0.07f);
+	duration.setBoundsRelative(0.3f, 0.15f, 0.2f, 0.07f);
+	volumeSlider.setBoundsRelative(0.32f, 0.78f, 0.1f, 0.1f);
+	auto volumeArea = getLocalBounds().getProportion(
+		juce::Rectangle<float>(0.29f, 0.8f, 0.03f, 0.06f));
+	//juce::Rectangle<float> volumeArea(20, 130, 30, 30);
 	if (volumeIcon)
-		volumeIcon->setTransformToFit(volumeArea, juce::RectanglePlacement::centred);
-	speedSlider.setBounds(60, 180, 200, 30);
-	juce::Rectangle<float> speedArea(20, 180, 30, 30);
+		volumeIcon->setTransformToFit(volumeArea.toFloat(), juce::RectanglePlacement::centred);
+	speedSlider.setBoundsRelative(0.43f, 0.78f, 0.1f, 0.1f);
+	auto speedArea = getLocalBounds().getProportion(
+		juce::Rectangle<float>(0.41f, 0.8f, 0.03f, 0.06f));
+	//juce::Rectangle<float> speedArea(20, 180, 30, 30);
 	if (speedIcon)
-		speedIcon->setTransformToFit(speedArea, juce::RectanglePlacement::centred);
-	positionSlider.setBounds(20, 230, getWidth() - 40, 30);
-	abLoopSlider.setBounds(100, 280, getWidth() - 120, 30);
-	addToPlaylistButton.setBounds(20, 350, 100, 40);
-	removeFromPlaylistButton.setBounds(140, 350, 100, 40);
-	nextButton.setBounds(260, 350, 80, 40);
-	previousButton.setBounds(360, 350, 80, 40);
-	playListTable.setBounds(20, 410, 420, getHeight() - 350);
-	addMarker.setBounds(960, y, 80, 40);
-	Markers.setBounds(960, y + 30, 80, 40);
+		speedIcon->setTransformToFit(speedArea.toFloat(), juce::RectanglePlacement::centred);
+	positionSlider.setBoundsRelative(0.33f, 0.7f, 0.6f, 0.1f);
+	abLoopSlider.setBoundsRelative(0.33f, 0.3f, 0.6f, 0.1f);
+	addToPlaylistButton.setBoundsRelative(0.01f, 0.01f, 0.07f, 0.07f);
+	removeFromPlaylistButton.setBoundsRelative(0.09f, 0.01f, 0.07f, 0.07f);
+	nextButton.setBoundsRelative(0.17f, 0.02f, 0.03f, 0.05f);
+	previousButton.setBoundsRelative(0.25f, 0.02f, 0.03f, 0.05f);
+	playListTable.setBoundsRelative(0.0f, 0.08f, 0.28f, 1.0f);
+	addMarker.setBoundsRelative(0.9f, 0.04f, 0.04f, 0.04f);
+	Markers.setBoundsRelative(0.9f, 0.08f, 0.04f, 0.04f);
 }
 
 void PlayerGUI::buttonClicked(juce::Button* button)
@@ -271,6 +275,12 @@ void PlayerGUI::buttonClicked(juce::Button* button)
 	else if (button == &goToEndButton)
 	{
 		playerAudio.goToEnd();
+		bool isPlaying = !playPauseButton.getToggleState();
+		if (!isPlaying)
+		{
+			playerAudio.pause();
+			playPauseButton.setToggleState(isPlaying, juce::dontSendNotification);
+		}
 	}
 	else if (button == &loopButton)
 	{
@@ -474,7 +484,10 @@ void PlayerGUI::changeListenerCallback(juce::ChangeBroadcaster* source)
 
 void PlayerGUI::paint(juce::Graphics& g) {
 	g.fillAll(juce::Colour(0xFF121212));
-		juce::Rectangle<int> thumbnailBounds(450, 300, getWidth() - 450, getHeight() - 300);
+	auto area = getLocalBounds();
+	juce::Rectangle<int>  thumbnailBounds = area.getProportion(
+		juce::Rectangle<float>(0.34f, 0.4f, 0.58f, 0.2f));
+	//juce::Rectangle<int> thumbnailBounds(450, 300, getWidth() - 450, getHeight() - 300);
 		if (thumbnail.getNumChannels() == 0) {
 				g.setColour(juce::Colours::darkgrey);
 				g.fillRect(thumbnailBounds);
@@ -489,9 +502,12 @@ void PlayerGUI::paint(juce::Graphics& g) {
 
 				double positionInSec = playerAudio.getPosition();
 				double thumbnailLength = thumbnail.getTotalLength();
-				int songPtr = int((getWidth()-450) * (positionInSec / thumbnailLength))+450;
+				float relativePos = (float)positionInSec / thumbnailLength;
+				float lineX = thumbnailBounds.getX() + relativePos * thumbnailBounds.getWidth();
 				g.setColour(juce::Colours::red);
-				g.drawLine((float)songPtr, float(getHeight()), (float)songPtr, float(getHeight() - 30), 2.0f);
+				g.drawLine(lineX, (float)thumbnailBounds.getY(), lineX, (float)thumbnailBounds.getBottom(), 2.0f);
+				//int songPtr = int((getWidth() - 450) * (positionInSec / thumbnailLength)) + 450;
+				//g.drawLine((float)songPtr, float(getHeight()), (float)songPtr, float(getHeight() - 30), 2.0f);
 		}
 
 
