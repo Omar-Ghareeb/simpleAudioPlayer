@@ -28,12 +28,19 @@ private:
 	PlayerAudio playerAudio;
 
 	// GUI elements
-	juce::TextButton loadButton{ "Load Files" };
-	juce::TextButton playPauseButton{ "Play" };
+	juce::ImageButton loadButton;
+	juce::Image loadImage;
+	juce::ImageButton playPauseButton;
+	juce::Image playImage;
+	juce::Image pauseImage;
 	juce::TextButton goToStartButton{ "Go to start" };
 	juce::TextButton goToEndButton{ "Go to end" };
-	juce::TextButton loopButton{ "Loop: Off" };
-	juce::TextButton muteButton{ "Mute" };
+	juce::ImageButton loopButton;
+	juce::Image loopImage;
+	juce::ImageButton muteButton;
+	juce::Image muteImage;
+	juce::ImageButton reverbButton;
+	juce::Image reverbImage;
 	juce::TextButton abLoopButton{ "A-B Loop: Off" };
 	juce::Label title{ "Title: " };
 	juce::Label artist{ "Artist: " };
@@ -44,22 +51,33 @@ private:
 	juce::Slider abLoopSlider;
 	juce::TextButton addToPlaylistButton{ "Add to Playlist" };
 	juce::TextButton removeFromPlaylistButton{ "Remove from Playlist" };
-	juce::TextButton nextButton{ "Next" };
-	juce::TextButton previousButton{ "Previous" };
+	juce::ImageButton nextButton;
+	juce::ImageButton previousButton;
+	juce::Image nextImage;
+	juce::Image previousImage;
 	juce::ListBox playListTable;
-	juce::TextButton forward10Button{ "+10s" };
-	juce::TextButton rewind10Button{ "-10s" };
+	juce::ImageButton forward10Button;
+	juce::ImageButton rewind10Button;
+	juce::Image forward10Image;
+	juce::Image rewind10Image;
 	juce::ComboBox Markers;
-	juce::TextButton addMarker{ "Add Marker" };
+	juce::ImageButton addMarker;
+	juce::Image addMarkerImage;
 	juce::AudioThumbnailCache thumbnailCache;
 	juce::AudioThumbnail thumbnail;
 	std::unique_ptr<juce::FileChooser> fileChooser;
+	std::unique_ptr<juce::PropertiesFile> propertiesFile;
+
+	std::unique_ptr<juce::Drawable> volumeIcon;
+	std::unique_ptr<juce::Drawable> speedIcon;
 
 	// Event handlers
 	void buttonClicked(juce::Button* button) override;
 	void sliderValueChanged(juce::Slider* slider) override;
 	void paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) override;
 	int getNumRows() override;
+	void saveSession();
+	void loadSession();
 	void PlayerGUI::listBoxItemClicked(int row, const juce::MouseEvent& e) override;
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PlayerGUI)
 };

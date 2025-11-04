@@ -14,6 +14,7 @@ void PlayerAudio::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
     ResamplingAudio.reset();
     ResamplingAudio = std::make_unique<juce::ResamplingAudioSource>(&transportSource, false, 2);
     ResamplingAudio->prepareToPlay(samplesPerBlockExpected, sampleRate);
+    reverb.setSampleRate(sampleRate);
 }
 void PlayerAudio::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
@@ -23,6 +24,12 @@ void PlayerAudio::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferTo
     {
         transportSource.setPosition(0.0);
         transportSource.start();
+    }
+    if (reverbworking)
+    {
+        float* leftChannel = bufferToFill.buffer->getWritePointer(0, bufferToFill.startSample);
+        float* rightChannel = bufferToFill.buffer->getWritePointer(1, bufferToFill.startSample);
+        reverb.processStereo(leftChannel, rightChannel, bufferToFill.numSamples);
     }
 	checkabLoop();
 }
@@ -37,6 +44,7 @@ bool PlayerAudio::loadFile(const juce::File& file)
         transportSource.stop();
         transportSource.setSource(nullptr);
         readerSource.reset();
+		currentFile = file;
 
         readerSource = std::make_unique<juce::AudioFormatReaderSource>(reader, true);
 
@@ -264,6 +272,30 @@ void PlayerAudio::clearMarkers() {
     markers.clear();
     markers.shrink_to_fit();
 }
+void PlayerAudio::reverbOn(bool state)
+{
+    if (state) {
+        reverbworking = true;
+        param.roomSize = 0.6f;
+        param.damping = 0.45f;
+        param.wetLevel = 0.6f;
+        param.dryLevel = 0.35f;
+        param.width = 1.0f;
+        param.freezeMode = 0.0f;
+        reverb.setParameters(param);
+
+    }
+    else {
+        reverb.reset(); reverbworking = false;
+    }
+}
 juce::AudioFormatManager& PlayerAudio::getForamt() {
     return formatManager;
+}
+
+juce::String PlayerAudio::getCurrentFilePath() const {
+    if (currentFile.existsAsFile())
+        return currentFile.getFullPathName();
+	else 
+		return "";
 }

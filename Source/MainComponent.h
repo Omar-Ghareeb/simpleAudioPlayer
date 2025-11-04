@@ -21,6 +21,9 @@ public:
 
 private:
     PlayerGUI player1;
+    PlayerGUI player2;
 
+    juce::AudioBuffer<float> tempBuffer1;
+    juce::AudioBuffer<float> tempBuffer2;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)
 };

@@ -44,7 +44,9 @@ public:
 	void moveToMarker(int id);
 	int getSize() const;
 	void clearMarkers();
+	void reverbOn(bool state);
 	juce::AudioFormatManager& getForamt();
+	juce::String getCurrentFilePath() const;
 private:
 	juce::AudioFormatManager formatManager;
 	std::unique_ptr<juce::AudioFormatReaderSource> readerSource;
@@ -52,7 +54,11 @@ private:
 	juce::AudioTransportSource transportSource;
 	std::vector<juce::File> playList;
 	std::vector<double> markers;
+	juce::File currentFile;
+	juce::Reverb reverb;
+	juce::Reverb::Parameters param;
 
+	bool reverbworking = false;
 	bool isLooping = false;
 	bool AmIMuted = false;
 	float PastVolume = 0.0;
