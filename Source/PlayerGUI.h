@@ -39,6 +39,8 @@ private:
 	juce::Image loopImage;
 	juce::ImageButton muteButton;
 	juce::Image muteImage;
+	juce::ImageButton reverbButton;
+	juce::Image reverbImage;
 	juce::TextButton abLoopButton{ "A-B Loop: Off" };
 	juce::Label title{ "Title: " };
 	juce::Label artist{ "Artist: " };
