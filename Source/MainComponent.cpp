@@ -6,10 +6,14 @@ MainComponent::MainComponent()
     addAndMakeVisible(player2);
     setSize(2000, 1500);
     setAudioChannels(0, 2);
+    player1.loadSession("player1");
+    player2.loadSession("player2");
 }
 
 MainComponent::~MainComponent()
 {
+    player1.saveSession("player1");
+    player2.saveSession("player2");
     shutdownAudio();
 }
 

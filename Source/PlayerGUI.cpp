@@ -8,10 +8,10 @@ PlayerGUI::PlayerGUI()
 {
 	// Add buttons
 	juce::TextButton* buttons[] = {
-		&goToStartButton, &goToEndButton, &abLoopButton, &addToPlaylistButton, &removeFromPlaylistButton,
+		&goToStartButton, &goToEndButton, &abLoopButton, &addToPlaylistButton, &removeFromPlaylistButton,& reverbButton
 	};
 	juce::ImageButton* imgButtons[] = { &loadButton, &playPauseButton, &loopButton,
-		&muteButton,& forward10Button,& rewind10Button,& nextButton,& previousButton,& addMarker,& reverbButton };
+		&muteButton,& forward10Button,& rewind10Button,& nextButton,& previousButton,& addMarker };
 	for (auto* btn : buttons)
 	{
 		btn->addListener(this);
@@ -53,13 +53,6 @@ PlayerGUI::PlayerGUI()
 		juce::ImageCache::getFromMemory(BinaryData::volume_png, BinaryData::volume_pngSize), 1.0f, juce::Colours::darkgrey,
 		muteImage, 1.0f, juce::Colour(0xffa020f0).withAlpha(0.5f),
 		muteImage, 1.0f, juce::Colour(0xffa020f0));
-
-	// reverb button image
-	reverbImage = juce::ImageCache::getFromMemory(BinaryData::waveformpath_png, BinaryData::waveformpath_pngSize);
-	reverbButton.setImages(false, true, true,
-			juce::ImageCache::getFromMemory(BinaryData::waveformpath_png, BinaryData::waveformpath_pngSize), 1.0f, juce::Colours::darkgrey,
-			reverbImage, 1.0f, juce::Colour(0xffa020f0).withAlpha(0.5f),
-			reverbImage, 1.0f, juce::Colour(0xffa020f0));
 	// Forward10 and Rewind10 button image
 	forward10Image = juce::ImageCache::getFromMemory(BinaryData::forward_png, BinaryData::forward_pngSize);
 	forward10Button.setImages(false, true, true,
@@ -98,7 +91,8 @@ PlayerGUI::PlayerGUI()
 	addAndMakeVisible(title);
 	addAndMakeVisible(artist);
 	addAndMakeVisible(duration);
-
+	// revrb button
+	reverbButton.setButtonText("Reverb");
 	// Volume slider
 	volumeSlider.setRange(0.0, 1.0, 0.01);
 	volumeSlider.setValue(0.5);
@@ -167,12 +161,12 @@ PlayerGUI::PlayerGUI()
 	options.filenameSuffix = ".settings";
 	options.folderName = "AudioPlayerAppData";
 	propertiesFile = std::make_unique<juce::PropertiesFile>(options);
-	loadSession();
+	
 }
 
 PlayerGUI::~PlayerGUI()
 {
-	saveSession();
+	
 }
 
 void PlayerGUI::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
@@ -183,6 +177,7 @@ void PlayerGUI::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 void PlayerGUI::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
 	playerAudio.getNextAudioBlock(bufferToFill);
+	currentFile = playerAudio.getCurrentFile();
 }
 
 void PlayerGUI::releaseResources()
@@ -194,12 +189,12 @@ void PlayerGUI::resized()
 {
 	loadButton.setBoundsRelative(0.9f, 0.8f, 0.07f, 0.07f);
 	playPauseButton.setBoundsRelative(0.59f, 0.79f, 0.08f, 0.08f);
-	goToStartButton.setBoundsRelative(0.55f, 0.04f, 0.06f, 0.06f);
-	goToEndButton.setBoundsRelative(0.62f, 0.04f, 0.06f, 0.06f);
+	goToStartButton.setBoundsRelative(0.55f, 0.05f, 0.06f, 0.06f);
+	goToEndButton.setBoundsRelative(0.62f, 0.05f, 0.06f, 0.06f);
 	loopButton.setBoundsRelative(0.85f, 0.8f, 0.06f, 0.06f);
 	muteButton.setBoundsRelative(0.79f, 0.8f, 0.06f, 0.06f);
 	reverbButton.setBoundsRelative(0.79f, 0.05f, 0.06f, 0.06f);
-	abLoopButton.setBoundsRelative(0.7f, 0.04f, 0.08f, 0.06f);
+	abLoopButton.setBoundsRelative(0.7f, 0.05f, 0.08f, 0.06f);
 	forward10Button.setBoundsRelative(0.69f, 0.8f, 0.06f, 0.06f);
 	rewind10Button.setBoundsRelative(0.53f, 0.8f, 0.06f, 0.06f);
 	title.setBoundsRelative(0.3f, 0.03f, 0.2f, 0.1f);
@@ -539,33 +534,38 @@ void PlayerGUI::paint(juce::Graphics& g) {
 			speedIcon->draw(g, 1.0f);
 }
 
-void PlayerGUI::saveSession()
+void PlayerGUI::saveSession(const juce::String& playerId)
 {
-	if (auto currentFile = playerAudio.getCurrentFile(); currentFile.existsAsFile())
-		propertiesFile->setValue("filePath", currentFile.getFullPathName());
-	propertiesFile->setValue("positionSeconds", playerAudio.getPosition());
-	propertiesFile->setValue("length", playerAudio.getLength());
-	propertiesFile->saveIfNeeded();
+		if (playerAudio.getCurrentFilePath() != "") {
+				propertiesFile->setValue(playerId + "_filePath", playerAudio.getCurrentFilePath());
+				propertiesFile->setValue(playerId + "_positionSeconds", playerAudio.getPosition());
+				propertiesFile->setValue(playerId + "_length", playerAudio.getLength());
+		}
+		propertiesFile->saveIfNeeded();
 }
 
-void PlayerGUI::loadSession()
+void PlayerGUI::loadSession(const juce::String& playerId)
 {
-	auto filePath = propertiesFile->getValue("filePath","");
-	juce::File file(filePath);
-	if (file.existsAsFile()) {
-		playerAudio.loadFile(file);
-		playerAudio.clearMarkers();
-		Markers.clear();
-		thumbnail.setSource(new juce::FileInputSource(file));
-		auto metadata = playerAudio.metaData(file);
-		title.setText("Title: " + metadata[0], juce::dontSendNotification);
-		artist.setText("Artist: " + metadata[1], juce::dontSendNotification);
-		duration.setText("Duration: " + metadata[2], juce::dontSendNotification);
-	}
-	double length = propertiesFile->getDoubleValue("length",1);
-	if (length > 0.0)
-		positionSlider.setRange(0.0, length, 0.01);
-	double pos = propertiesFile->getDoubleValue("positionSeconds", 0.0);
-	if (pos > 0.0 && pos < playerAudio.getLength())
-		playerAudio.setPosition(pos);
+		auto filePath = propertiesFile->getValue(playerId + "_filePath", "");
+		juce::File file(filePath);
+
+		if (file.existsAsFile())
+		{
+				playerAudio.loadFile(file);
+				playerAudio.clearMarkers();
+				Markers.clear();
+				thumbnail.setSource(new juce::FileInputSource(file));
+
+				auto metadata = playerAudio.metaData(file);
+				title.setText("Title: " + metadata[0], juce::dontSendNotification);
+				artist.setText("Artist: " + metadata[1], juce::dontSendNotification);
+				duration.setText("Duration: " + metadata[2], juce::dontSendNotification);
+		}
+		double length = propertiesFile->getDoubleValue(playerId + "_length", 1);
+		if (length > 0.0)
+				positionSlider.setRange(0.0, length, 0.01);
+		double pos = propertiesFile->getDoubleValue(playerId + "_positionSeconds", 0.0);
+		if (pos > 0.0 && pos < playerAudio.getLength())
+				playerAudio.setPosition(pos);
+		positionSlider.setValue(pos, juce::dontSendNotification);
 }

@@ -44,8 +44,8 @@ bool PlayerAudio::loadFile(const juce::File& file)
         transportSource.stop();
         transportSource.setSource(nullptr);
         readerSource.reset();
-		currentFile = file;
-
+		    currentFile = file;
+        currentPlayListIndex = -1;
         readerSource = std::make_unique<juce::AudioFormatReaderSource>(reader, true);
 
         transportSource.setSource(readerSource.get(), 0, nullptr, reader->sampleRate);
@@ -137,7 +137,7 @@ void PlayerAudio::checkabLoop()
         if (transportSource.getCurrentPosition() >= abLoopEnd || transportSource.getCurrentPosition() < abLoopStart) // Check if the current position is outside the loop
         {
             transportSource.setPosition(abLoopStart);
-            transportSource.start();
+
         }
     }
 }
@@ -228,9 +228,10 @@ int PlayerAudio::getCurrentPlayListIndex() const
 
 juce::File PlayerAudio::getCurrentFile() const
 {
-    if (currentPlayListIndex >= 0 && currentPlayListIndex < playList.size()) {
+    if (currentPlayListIndex == -1)
+        return currentFile;
+    if (currentPlayListIndex >= 0 && currentPlayListIndex < playList.size())
         return playList[currentPlayListIndex];
-    }
     return juce::File();
 }
 
