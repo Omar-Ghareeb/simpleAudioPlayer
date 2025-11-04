@@ -137,7 +137,6 @@ void PlayerAudio::checkabLoop()
         if (transportSource.getCurrentPosition() >= abLoopEnd || transportSource.getCurrentPosition() < abLoopStart) // Check if the current position is outside the loop
         {
             transportSource.setPosition(abLoopStart);
-            transportSource.start();
         }
     }
 }

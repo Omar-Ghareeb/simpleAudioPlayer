@@ -167,13 +167,10 @@ PlayerGUI::PlayerGUI()
 	options.filenameSuffix = ".settings";
 	options.folderName = "AudioPlayerAppData";
 	propertiesFile = std::make_unique<juce::PropertiesFile>(options);
-	loadSession();
 }
 
 PlayerGUI::~PlayerGUI()
-{
-	saveSession();
-}
+{}
 
 void PlayerGUI::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 {
@@ -183,6 +180,7 @@ void PlayerGUI::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 void PlayerGUI::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
 	playerAudio.getNextAudioBlock(bufferToFill);
+	currentFile = playerAudio.getCurrentFile();
 }
 
 void PlayerGUI::releaseResources()
@@ -241,15 +239,12 @@ void PlayerGUI::buttonClicked(juce::Button* button)
 			[this](const juce::FileChooser& fc)
 			{
 				auto files = fc.getResults();
-				if (playerAudio.loadFile(files[0]))
-				{
-					double length = playerAudio.getLength();
-					if (length > 0.0)
-						positionSlider.setRange(0.0, length, 0.01); // REAL seconds range
-				}
 				if (files.size() > 0 && files[0].existsAsFile())
 				{
 					playerAudio.loadFile(files[0]);
+					double length = playerAudio.getLength();
+					if (length > 0.0)
+						positionSlider.setRange(0.0, length, 0.01); // REAL seconds range
 					playerAudio.clearMarkers();
 					Markers.clear();
 					thumbnail.setSource(new juce::FileInputSource(files[0]));
@@ -539,33 +534,37 @@ void PlayerGUI::paint(juce::Graphics& g) {
 			speedIcon->draw(g, 1.0f);
 }
 
-void PlayerGUI::saveSession()
+void PlayerGUI::saveSession(const juce::String& playerId)
 {
-	if (auto currentFile = playerAudio.getCurrentFile(); currentFile.existsAsFile())
-		propertiesFile->setValue("filePath", currentFile.getFullPathName());
-	propertiesFile->setValue("positionSeconds", playerAudio.getPosition());
-	propertiesFile->setValue("length", playerAudio.getLength());
+	if (playerAudio.getCurrentFilePath()!="") {
+		propertiesFile->setValue(playerId + "_filePath", playerAudio.getCurrentFilePath());
+		propertiesFile->setValue(playerId + "_positionSeconds", playerAudio.getPosition());
+		propertiesFile->setValue(playerId + "_length", playerAudio.getLength());
+	}
 	propertiesFile->saveIfNeeded();
 }
 
-void PlayerGUI::loadSession()
+void PlayerGUI::loadSession(const juce::String& playerId)
 {
-	auto filePath = propertiesFile->getValue("filePath","");
+	auto filePath = propertiesFile->getValue(playerId + "_filePath", "");
 	juce::File file(filePath);
-	if (file.existsAsFile()) {
+
+	if (file.existsAsFile())
+	{
 		playerAudio.loadFile(file);
 		playerAudio.clearMarkers();
 		Markers.clear();
 		thumbnail.setSource(new juce::FileInputSource(file));
+
 		auto metadata = playerAudio.metaData(file);
 		title.setText("Title: " + metadata[0], juce::dontSendNotification);
 		artist.setText("Artist: " + metadata[1], juce::dontSendNotification);
 		duration.setText("Duration: " + metadata[2], juce::dontSendNotification);
 	}
-	double length = propertiesFile->getDoubleValue("length",1);
+	double length = propertiesFile->getDoubleValue(playerId + "_length", 1);
 	if (length > 0.0)
 		positionSlider.setRange(0.0, length, 0.01);
-	double pos = propertiesFile->getDoubleValue("positionSeconds", 0.0);
+	double pos = propertiesFile->getDoubleValue(playerId + "_positionSeconds", 0.0);
 	if (pos > 0.0 && pos < playerAudio.getLength())
 		playerAudio.setPosition(pos);
 }
