@@ -23,7 +23,8 @@ public:
 	void timerCallback() override ;
 	void changeListenerCallback(juce::ChangeBroadcaster* source) override;
 	void paint(juce::Graphics& g) override;
-
+	void saveSession(const juce::String& playerId);
+	void loadSession(const juce::String& playerId);
 private:
 	PlayerAudio playerAudio;
 
@@ -39,8 +40,7 @@ private:
 	juce::Image loopImage;
 	juce::ImageButton muteButton;
 	juce::Image muteImage;
-	juce::ImageButton reverbButton;
-	juce::Image reverbImage;
+	juce::TextButton reverbButton;
 	juce::TextButton abLoopButton{ "A-B Loop: Off" };
 	juce::Label title{ "Title: " };
 	juce::Label artist{ "Artist: " };
@@ -65,6 +65,7 @@ private:
 	juce::Image addMarkerImage;
 	juce::AudioThumbnailCache thumbnailCache;
 	juce::AudioThumbnail thumbnail;
+	juce::File currentFile;
 	std::unique_ptr<juce::FileChooser> fileChooser;
 	std::unique_ptr<juce::PropertiesFile> propertiesFile;
 
@@ -76,8 +77,7 @@ private:
 	void sliderValueChanged(juce::Slider* slider) override;
 	void paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) override;
 	int getNumRows() override;
-	void saveSession();
-	void loadSession();
+	
 	void PlayerGUI::listBoxItemClicked(int row, const juce::MouseEvent& e) override;
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PlayerGUI)
 };
