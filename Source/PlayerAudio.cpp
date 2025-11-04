@@ -163,12 +163,25 @@ std::vector<std::string> PlayerAudio::metaData(const juce::File& file)
         if (title.isEmpty())
             title = file.getFileNameWithoutExtension();
         juce::String artist = reader->metadataValues.getValue("artist", "Unknown Artist");
-        double durationInSeconds = (reader->lengthInSamples / reader->sampleRate);
+        int durationInSeconds = (int)(reader->lengthInSamples / reader->sampleRate);
         int durationInMinutes = (durationInSeconds) / 60;
-        juce::String duration = juce::String((float)durationInMinutes) + ':' + juce::String(((int)durationInSeconds % 60)) + " minutes";
+        int durationinHours = durationInMinutes / 60;
+        int durationSecondsRemainder = durationInSeconds % 60;
+
+        std::string duration = "00:00";
+        char buffer[16];
+        if (durationinHours > 0) {
+            sprintf(buffer, "%02d:%02d:%02d hours", durationinHours, durationInMinutes % 60, durationSecondsRemainder);
+            duration = buffer;
+        }
+        else {
+            sprintf(buffer, "%02d:%02d minutes", durationInMinutes, durationSecondsRemainder);
+            duration = buffer;
+        }
+
         metadata.push_back(title.toStdString());
         metadata.push_back(artist.toStdString());
-        metadata.push_back(duration.toStdString());
+        metadata.push_back(duration); 
     }
 
     return metadata;

@@ -216,8 +216,8 @@ void PlayerGUI::resized()
 	abLoopSlider.setBoundsRelative(0.33f, 0.3f, 0.6f, 0.1f);
 	addToPlaylistButton.setBoundsRelative(0.01f, 0.01f, 0.07f, 0.07f);
 	removeFromPlaylistButton.setBoundsRelative(0.09f, 0.01f, 0.07f, 0.07f);
-	nextButton.setBoundsRelative(0.17f, 0.02f, 0.03f, 0.05f);
-	previousButton.setBoundsRelative(0.25f, 0.02f, 0.03f, 0.05f);
+	nextButton.setBoundsRelative(0.25f, 0.02f, 0.03f, 0.05f);
+	previousButton.setBoundsRelative(0.17f, 0.02f, 0.03f, 0.05f);
 	playListTable.setBoundsRelative(0.0f, 0.08f, 0.28f, 1.0f);
 	addMarker.setBoundsRelative(0.9f, 0.04f, 0.04f, 0.04f);
 	Markers.setBoundsRelative(0.9f, 0.08f, 0.04f, 0.04f);
@@ -362,6 +362,8 @@ void PlayerGUI::buttonClicked(juce::Button* button)
 			playListTable.selectRow(currentIndex);
 			playListTable.updateContent();
 			playListTable.repaint();
+			playerAudio.play();
+			playPauseButton.setToggleState(true, juce::dontSendNotification);
 		}
 
 	}
@@ -376,6 +378,8 @@ void PlayerGUI::buttonClicked(juce::Button* button)
 			playListTable.selectRow(currentIndex);
 			playListTable.updateContent();
 			playListTable.repaint();
+			playerAudio.play();
+			playPauseButton.setToggleState(true, juce::dontSendNotification);
 		}
 
 	}
@@ -467,11 +471,7 @@ void PlayerGUI::listBoxItemClicked(int row, const juce::MouseEvent& e)
 		artist.setText("Artist: " + juce::String(metadata[1]), juce::dontSendNotification);
 		duration.setText("Duration: " + juce::String(metadata[2]), juce::dontSendNotification);
 		playerAudio.play();
-		playPauseButton.setButtonText("Pause");
-		bool isPlaying = !playPauseButton.getToggleState();
-		if (!playPauseButton.getToggleState()) {
-				playPauseButton.setToggleState(isPlaying, juce::dontSendNotification);
-		}
+		playPauseButton.setToggleState(true, juce::dontSendNotification);
 		playerAudio.clearMarkers();
 		Markers.clear();
 		double length = playerAudio.getLength();
