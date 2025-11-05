@@ -1,5 +1,5 @@
 # Simple Audio Player
-[![Ask DeepWiki](https://devin.ai/assets/askdeepwiki.png)](https://deepwiki.com/Omar-Ghareeb/simpleAudioPlayer)
+
 
 Simple Audio Player is a dual-instance, cross-platform desktop audio player built with the C++ JUCE framework. It provides two independent player interfaces within a single window, each with its own playlist, waveform display, and playback controls. The application supports common audio formats and features session persistence, remembering the last played track and position for each player upon restart.
 
