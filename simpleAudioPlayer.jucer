@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="fzblvo" name="simpleAudioPlayer" projectType="guiapp" useAppConfig="0"
+              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
+  <MAINGROUP id="gRV8dY" name="simpleAudioPlayer">
+    <GROUP id="{E5AC5D15-0053-A92D-ECE5-8C720EF74255}" name="Assets">
+      <GROUP id="{CD366892-6BE0-EC92-1898-B345AA8319F5}" name="icons">
+        <FILE id="x7BzD6" name="cross-circle.png" compile="0" resource="1"
+              file="Assets/icons/cross-circle.png"/>
+        <FILE id="MWKNYK" name="file-import.png" compile="0" resource="1" file="Assets/icons/file-import.png"/>
+        <FILE id="szqiR8" name="forward.png" compile="0" resource="1" file="Assets/icons/forward.png"/>
+        <FILE id="QML5RH" name="loop-square.png" compile="0" resource="1" file="Assets/icons/loop-square.png"/>
+        <FILE id="NuFrwt" name="map-pin.png" compile="0" resource="1" file="Assets/icons/map-pin.png"/>
+        <FILE id="vCMvDE" name="next-track.png" compile="0" resource="1" file="Assets/icons/next-track.png"/>
+        <FILE id="g1j8i3" name="pause.png" compile="0" resource="1" file="Assets/icons/pause.png"/>
+        <FILE id="Pws05r" name="play.png" compile="0" resource="1" file="Assets/icons/play.png"/>
+        <FILE id="iosI2h" name="previous-track.png" compile="0" resource="1"
+              file="Assets/icons/previous-track.png"/>
+        <FILE id="BsKNlS" name="rewind.png" compile="0" resource="1" file="Assets/icons/rewind.png"/>
+        <FILE id="BmJjnW" name="step-backward.png" compile="0" resource="1"
+              file="Assets/icons/step-backward.png"/>
+        <FILE id="JYa44M" name="step-forward.png" compile="0" resource="1"
+              file="Assets/icons/step-forward.png"/>
+        <FILE id="OXMuwm" name="tachometer-fast.png" compile="0" resource="1"
+              file="Assets/icons/tachometer-fast.png"/>
+        <FILE id="mfA1Xd" name="tachometer-fast.svg" compile="0" resource="1"
+              file="Assets/icons/tachometer-fast.svg"/>
+        <FILE id="lau5QB" name="volume-mute.png" compile="0" resource="1" file="Assets/icons/volume-mute.png"/>
+        <FILE id="V2R7nO" name="volume.png" compile="0" resource="1" file="Assets/icons/volume.png"/>
+        <FILE id="Pr8EJM" name="volume.svg" compile="0" resource="1" file="Assets/icons/volume.svg"/>
+      </GROUP>
+    </GROUP>
+    <GROUP id="{03F161F3-6192-A7C0-983E-F572715D5F6C}" name="icons">
+      <FILE id="hDheAK" name="waveform-path.png" compile="0" resource="1"
+            file="Assets/icons/waveform-path.png"/>
+    </GROUP>
+    <GROUP id="{85E5A3E8-8AA8-CFB8-5AD9-F771D8B4EE72}" name="Source">
+      <FILE id="TpbB6e" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+      <FILE id="oWPCEK" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
+      <FILE id="B5iQ6e" name="MainComponent.cpp" compile="1" resource="0"
+            file="Source/MainComponent.cpp"/>
+    </GROUP>
+    <FILE id="GAo7np" name="PlayerAudio.cpp" compile="1" resource="0" file="Source/PlayerAudio.cpp"/>
+    <FILE id="snF6Lf" name="PlayerAudio.h" compile="0" resource="0" file="Source/PlayerAudio.h"/>
+    <FILE id="JdniGQ" name="PlayerGUI.cpp" compile="1" resource="0" file="Source/PlayerGUI.cpp"/>
+    <FILE id="hzoZvG" name="PlayerGUI.h" compile="0" resource="0" file="Source/PlayerGUI.h"/>
+  </MAINGROUP>
+  <MODULES>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_box2d" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_cryptography" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+  </MODULES>
+  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
+  <EXPORTFORMATS>
+    <VS2022 targetFolder="Builds/VisualStudio2022">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="NewProject"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="NewProject"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_opengl" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_box2d" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../JUCE/modules"/>
+      </MODULEPATHS>
+    </VS2022>
+  </EXPORTFORMATS>
+</JUCERPROJECT>
