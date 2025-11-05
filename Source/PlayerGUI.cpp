@@ -352,33 +352,35 @@ void PlayerGUI::buttonClicked(juce::Button* button)
 	}
 
 	else if (button == &nextButton) {
-		playerAudio.nextTrack();
-		int currentIndex = playerAudio.getCurrentPlayListIndex();
-		if (currentIndex >= 0) {
+			playerAudio.nextTrack();
+			int currentIndex = playerAudio.findIndex();
+			if (currentIndex >= 0) {
+					playerAudio.setIndex(currentIndex);
+					playListTable.selectRow(currentIndex);
+					playListTable.updateContent();
+					playListTable.repaint();
+			}
 			auto metadata = playerAudio.metaData(playerAudio.getCurrentFile());
 			title.setText("Title: " + metadata[0], juce::dontSendNotification);
 			artist.setText("Artist: " + metadata[1], juce::dontSendNotification);
 			duration.setText("Duration: " + metadata[2], juce::dontSendNotification);
-			playListTable.selectRow(currentIndex);
-			playListTable.updateContent();
-			playListTable.repaint();
-		}
+			}
 
-	}
 	else if (button == &previousButton) {
-		playerAudio.previousTrack();
-		int currentIndex = playerAudio.getCurrentPlayListIndex();
-		if (currentIndex >= 0) {
+			playerAudio.previousTrack();
+			int currentIndex = playerAudio.findIndex();
+			if (currentIndex >= 0) {
+					playerAudio.setIndex(currentIndex);
+					playListTable.selectRow(currentIndex);
+					playListTable.updateContent();
+					playListTable.repaint();
+			}
 			auto metadata = playerAudio.metaData(playerAudio.getCurrentFile());
 			title.setText("Title: " + metadata[0], juce::dontSendNotification);
 			artist.setText("Artist: " + metadata[1], juce::dontSendNotification);
 			duration.setText("Duration: " + metadata[2], juce::dontSendNotification);
-			playListTable.selectRow(currentIndex);
-			playListTable.updateContent();
-			playListTable.repaint();
-		}
+			}
 
-	}
 	else if (button == &forward10Button) {
 		playerAudio.forward10Seconds();
 		}
