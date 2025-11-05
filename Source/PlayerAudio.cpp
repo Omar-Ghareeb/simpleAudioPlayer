@@ -203,18 +203,33 @@ void PlayerAudio::playFromPlayList(int index)
     }
 }
 
-void PlayerAudio::nextTrack()
-{
+void PlayerAudio::nextTrack() {
     if (!playList.empty()) {
+        if (currentPlayListIndex == -1) {
+            auto it = std::find(playList.begin(), playList.end(), currentFile);
+            if (it != playList.end()) {
+                currentPlayListIndex = it - playList.begin();
+            }
+            else {
+                currentPlayListIndex = 0;
+            }
+        }
         currentPlayListIndex = (currentPlayListIndex + 1) % playList.size();
         loadFile(playList[currentPlayListIndex]);
         play();
     }
 }
-
-void PlayerAudio::previousTrack()
-{
+void PlayerAudio::previousTrack() {
     if (!playList.empty()) {
+        if (currentPlayListIndex == -1) {
+            auto it = std::find(playList.begin(), playList.end(), currentFile);
+            if (it != playList.end()) {
+                currentPlayListIndex = it - playList.begin();
+            }
+            else {
+                currentPlayListIndex = playList.size() - 1;
+            }
+        }
         currentPlayListIndex = (currentPlayListIndex - 1 + playList.size()) % playList.size();
         loadFile(playList[currentPlayListIndex]);
         play();
@@ -289,6 +304,19 @@ void PlayerAudio::reverbOn(bool state)
     else {
         reverb.reset(); reverbworking = false;
     }
+}
+int PlayerAudio::findIndex() const {
+    for (int i = 0; i < playList.size(); ++i)
+        if (playList[i] == currentFile)
+            return i;
+    return -1;
+}
+
+void PlayerAudio::setIndex(int index) {
+    if (index >= 0 && index < playList.size())
+        currentPlayListIndex = index;
+    DBG("audio");
+    DBG(index);
 }
 juce::AudioFormatManager& PlayerAudio::getForamt() {
     return formatManager;

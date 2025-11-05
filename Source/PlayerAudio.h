@@ -44,6 +44,8 @@ public:
 	void moveToMarker(int id);
 	int getSize() const;
 	void clearMarkers();
+	int findIndex() const;
+	void setIndex(int index);
 	void reverbOn(bool state);
 	juce::AudioFormatManager& getForamt();
 	juce::String getCurrentFilePath() const;
