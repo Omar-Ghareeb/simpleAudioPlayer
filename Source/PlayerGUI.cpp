@@ -277,9 +277,6 @@ void PlayerGUI::buttonClicked(juce::Button* button)
 	else if (button == &goToEndButton)
 	{
 		playerAudio.goToEnd();
-		bool isPlaying = !playPauseButton.getToggleState();
-		if (!isPlaying)
-		{
 			playerAudio.pause();
 			playPauseButton.setToggleState(isPlaying, juce::dontSendNotification);
 		}
