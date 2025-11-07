@@ -366,6 +366,8 @@ void PlayerGUI::buttonClicked(juce::Button* button)
 
 	else if (button == &nextButton) {
 			playerAudio.nextTrack();
+			thumbnail.setSource(new juce::FileInputSource(playerAudio.getCurrentFile()));
+			repaint();
 			int currentIndex = playerAudio.findIndex();
 			if (currentIndex >= 0) {
 					playerAudio.setIndex(currentIndex);
@@ -385,6 +387,8 @@ void PlayerGUI::buttonClicked(juce::Button* button)
 
 	else if (button == &previousButton) {
 			playerAudio.previousTrack();
+			thumbnail.setSource(new juce::FileInputSource(playerAudio.getCurrentFile()));
+			repaint();
 			int currentIndex = playerAudio.findIndex();
 			if (currentIndex >= 0) {
 					playerAudio.setIndex(currentIndex);
