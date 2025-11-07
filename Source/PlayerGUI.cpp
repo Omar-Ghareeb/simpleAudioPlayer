@@ -352,8 +352,15 @@ void PlayerGUI::buttonClicked(juce::Button* button)
 	else if (button == &removeFromPlaylistButton) {
 		int selectedRow = playListTable.getSelectedRow();
 		if (selectedRow >= 0) {
+		
+			playerAudio.unloadFile();
 			playerAudio.removeFromPlayList(selectedRow);
 			playListTable.updateContent();
+			title.setText("", juce::dontSendNotification);
+			artist.setText("", juce::dontSendNotification);
+			duration.setText("", juce::dontSendNotification);
+			thumbnail.clear();      
+			repaint();
 		}
 	}
 

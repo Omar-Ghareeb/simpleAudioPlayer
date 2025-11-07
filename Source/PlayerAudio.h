@@ -47,6 +47,8 @@ public:
 	int findIndex() const;
 	void setIndex(int index);
 	void reverbOn(bool state);
+	void unloadFile();
+
 	juce::AudioFormatManager& getForamt();
 	juce::String getCurrentFilePath() const;
 private:

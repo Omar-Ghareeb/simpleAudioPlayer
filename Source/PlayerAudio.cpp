@@ -305,6 +305,14 @@ void PlayerAudio::reverbOn(bool state)
         reverb.reset(); reverbworking = false;
     }
 }
+void PlayerAudio::unloadFile()
+{
+    transportSource.stop();
+    transportSource.setSource(nullptr);
+    readerSource.reset();
+    currentFile = juce::File();
+    currentPlayListIndex = -1;
+}
 int PlayerAudio::findIndex() const {
     for (int i = 0; i < playList.size(); ++i)
         if (playList[i] == currentFile)
