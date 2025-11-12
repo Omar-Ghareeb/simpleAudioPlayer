@@ -160,7 +160,8 @@ PlayerGUI::PlayerGUI()
 	options.applicationName = "AudioPlayerApp";
 	options.filenameSuffix = ".settings";
 	options.folderName = "AudioPlayerAppData";
-	propertiesFile = std::make_unique<juce::PropertiesFile>(options);
+	propertiesFile1 = std::make_unique<juce::PropertiesFile>(options);
+	propertiesFile2 = std::make_unique<juce::PropertiesFile>(options);
 	
 }
 
@@ -359,7 +360,8 @@ void PlayerGUI::buttonClicked(juce::Button* button)
 			title.setText("", juce::dontSendNotification);
 			artist.setText("", juce::dontSendNotification);
 			duration.setText("", juce::dontSendNotification);
-			thumbnail.clear();      
+			thumbnail.clear();  
+			playPauseButton.setToggleState(false,juce::dontSendNotification);
 			repaint();
 		}
 	}
@@ -379,10 +381,12 @@ void PlayerGUI::buttonClicked(juce::Button* button)
 			title.setText("Title: " + metadata[0], juce::dontSendNotification);
 			artist.setText("Artist: " + metadata[1], juce::dontSendNotification);
 			duration.setText("Duration: " + metadata[2], juce::dontSendNotification);
-			bool isPlaying = !playPauseButton.getToggleState();
-			if (isPlaying) {
-					playPauseButton.setToggleState(isPlaying, juce::dontSendNotification);
+			playPauseButton.setToggleState(true, juce::dontSendNotification);
+			double length = playerAudio.getLength();
+			if (length > 0.0) {
+				positionSlider.setRange(0.0, length, 0.01);
 			}
+			positionSlider.setValue(0.0);
 			}
 
 	else if (button == &previousButton) {
@@ -404,6 +408,11 @@ void PlayerGUI::buttonClicked(juce::Button* button)
 			if (isPlaying) {
 					playPauseButton.setToggleState(isPlaying, juce::dontSendNotification);
 			}
+			double length = playerAudio.getLength();
+			if (length > 0.0) {
+				positionSlider.setRange(0.0, length, 0.01);
+			}
+			positionSlider.setValue(0.0);
 			}
 
 	else if (button == &forward10Button) {
@@ -563,36 +572,68 @@ void PlayerGUI::paint(juce::Graphics& g) {
 
 void PlayerGUI::saveSession(const juce::String& playerId)
 {
-		if (playerAudio.getCurrentFilePath() != "") {
-				propertiesFile->setValue(playerId + "_filePath", playerAudio.getCurrentFilePath());
-				propertiesFile->setValue(playerId + "_positionSeconds", playerAudio.getPosition());
-				propertiesFile->setValue(playerId + "_length", playerAudio.getLength());
+		if (playerAudio.getCurrentFilePath() != "" && playerId=="player1") {
+				propertiesFile1->setValue(playerId + "_filePath", playerAudio.getCurrentFilePath());
+				propertiesFile1->setValue(playerId + "_positionSeconds", playerAudio.getPosition());
+				propertiesFile1->setValue(playerId + "_length", playerAudio.getLength());
 		}
-		propertiesFile->saveIfNeeded();
+		else if (playerAudio.getCurrentFilePath() != "" && playerId=="player2") {
+				propertiesFile2->setValue(playerId + "_filePath", playerAudio.getCurrentFilePath());
+				propertiesFile2->setValue(playerId + "_positionSeconds", playerAudio.getPosition());
+				propertiesFile2->setValue(playerId + "_length", playerAudio.getLength());
+		}
+		propertiesFile1->saveIfNeeded();
+		propertiesFile2->saveIfNeeded();
 }
 
 void PlayerGUI::loadSession(const juce::String& playerId)
 {
-		auto filePath = propertiesFile->getValue(playerId + "_filePath", "");
+	if (playerId == "player1") {
+		auto filePath = propertiesFile1->getValue(playerId + "_filePath", "");
 		juce::File file(filePath);
 
 		if (file.existsAsFile())
 		{
-				playerAudio.loadFile(file);
-				playerAudio.clearMarkers();
-				Markers.clear();
-				thumbnail.setSource(new juce::FileInputSource(file));
+			playerAudio.loadFile(file);
+			playerAudio.clearMarkers();
+			Markers.clear();
+			thumbnail.setSource(new juce::FileInputSource(file));
 
-				auto metadata = playerAudio.metaData(file);
-				title.setText("Title: " + metadata[0], juce::dontSendNotification);
-				artist.setText("Artist: " + metadata[1], juce::dontSendNotification);
-				duration.setText("Duration: " + metadata[2], juce::dontSendNotification);
+			auto metadata = playerAudio.metaData(file);
+			title.setText("Title: " + metadata[0], juce::dontSendNotification);
+			artist.setText("Artist: " + metadata[1], juce::dontSendNotification);
+			duration.setText("Duration: " + metadata[2], juce::dontSendNotification);
 		}
-		double length = propertiesFile->getDoubleValue(playerId + "_length", 1);
+		double length = propertiesFile1->getDoubleValue(playerId + "_length", 1);
 		if (length > 0.0)
-				positionSlider.setRange(0.0, length, 0.01);
-		double pos = propertiesFile->getDoubleValue(playerId + "_positionSeconds", 0.0);
+			positionSlider.setRange(0.0, length, 0.01);
+		double pos = propertiesFile1->getDoubleValue(playerId + "_positionSeconds", 0.0);
 		if (pos > 0.0 && pos < playerAudio.getLength())
-				playerAudio.setPosition(pos);
+			playerAudio.setPosition(pos);
 		positionSlider.setValue(pos, juce::dontSendNotification);
+	}
+	else if (playerId == "player2") {
+		auto filePath = propertiesFile2->getValue(playerId + "_filePath", "");
+		juce::File file(filePath);
+
+		if (file.existsAsFile())
+		{
+			playerAudio.loadFile(file);
+			playerAudio.clearMarkers();
+			Markers.clear();
+			thumbnail.setSource(new juce::FileInputSource(file));
+
+			auto metadata = playerAudio.metaData(file);
+			title.setText("Title: " + metadata[0], juce::dontSendNotification);
+			artist.setText("Artist: " + metadata[1], juce::dontSendNotification);
+			duration.setText("Duration: " + metadata[2], juce::dontSendNotification);
+		}
+		double length = propertiesFile2->getDoubleValue(playerId + "_length", 1);
+		if (length > 0.0)
+			positionSlider.setRange(0.0, length, 0.01);
+		double pos = propertiesFile2->getDoubleValue(playerId + "_positionSeconds", 0.0);
+		if (pos > 0.0 && pos < playerAudio.getLength())
+			playerAudio.setPosition(pos);
+		positionSlider.setValue(pos, juce::dontSendNotification);
+	}
 }

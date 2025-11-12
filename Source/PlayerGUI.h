@@ -67,7 +67,8 @@ private:
 	juce::AudioThumbnail thumbnail;
 	juce::File currentFile;
 	std::unique_ptr<juce::FileChooser> fileChooser;
-	std::unique_ptr<juce::PropertiesFile> propertiesFile;
+	std::unique_ptr<juce::PropertiesFile> propertiesFile1;
+	std::unique_ptr<juce::PropertiesFile> propertiesFile2;
 
 	std::unique_ptr<juce::Drawable> volumeIcon;
 	std::unique_ptr<juce::Drawable> speedIcon;
