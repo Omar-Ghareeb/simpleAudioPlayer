@@ -156,12 +156,17 @@ PlayerGUI::PlayerGUI()
 	startTimer(40); // calls timerCallback every 40 milliseconds
 
 	//load session file settings
-	juce::PropertiesFile::Options options;
-	options.applicationName = "AudioPlayerApp";
-	options.filenameSuffix = ".settings";
-	options.folderName = "AudioPlayerAppData";
-	propertiesFile1 = std::make_unique<juce::PropertiesFile>(options);
-	propertiesFile2 = std::make_unique<juce::PropertiesFile>(options);
+	juce::PropertiesFile::Options options1;
+	options1.applicationName = "AudioPlayerApp_Player1";
+	options1.filenameSuffix = ".settings";
+	options1.folderName = "AudioPlayerAppData";
+	propertiesFile1 = std::make_unique<juce::PropertiesFile>(options1);
+
+	juce::PropertiesFile::Options options2;
+	options2.applicationName = "AudioPlayerApp_Player2";
+	options2.filenameSuffix = ".settings";
+	options2.folderName = "AudioPlayerAppData";
+	propertiesFile2 = std::make_unique<juce::PropertiesFile>(options2);
 	
 }
 
